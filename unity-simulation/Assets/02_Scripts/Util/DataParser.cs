@@ -163,6 +163,14 @@ public class DataParser
         return result;
     }
 
+    //public async Task<List<T>> ParseCSV<T>(string fileName)
+    //{
+
+
+
+    //    return result;
+    //}
+
     private List<Vector2> ConvertToLocalPolygon(List<double[]> rawCoords, double cLon, double cLat)
     {
         double lonScale = LAT_SCALE * Math.Cos(cLat * Math.PI / 180.0);
