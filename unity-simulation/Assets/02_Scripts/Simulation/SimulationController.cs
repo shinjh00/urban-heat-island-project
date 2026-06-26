@@ -1,28 +1,30 @@
 using NUnit.Framework;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
+
+
+
 
 public class SimulationController : MonoBehaviour
 {
 
-    // 변수
-
-    // 그리드 내에 있는 건물 리스트
-    public List<BuildingInfo> buildingList = new List<BuildingInfo>();
 
 
 
 
+/* 함수 */
 
-
-
-
-
-    /* 함수 */
-
-    // 시뮬레이션 진행 함수
-    public void StartSimulation()
+// 시뮬레이션 진행 함수
+public void StartSimulation()
     {
+
+    }
+
+
+
+
         /*
                  1. 시뮬레이션 시작 과정 전체
             1. 시뮬레이션 준비 버튼 누름
@@ -78,7 +80,7 @@ public class SimulationController : MonoBehaviour
         6. 시뮬레이션 종료 메세지(왼쪽 하단)
             1. debug.log(시뮬레이션이 종료되었습니다)
          */
-    }
+    
 
 
     // 건물 정보 가져오기
