@@ -26,7 +26,7 @@ using UnityEngine;
 /// </summary>
 public class BuildingManager : MonoBehaviour
 {
-
+    // 싱글톤
     public static BuildingManager Instance { get; private set; }
 
     [Header("Cesium")]
@@ -35,27 +35,34 @@ public class BuildingManager : MonoBehaviour
 
     [Header("Spawn Settings")]
     // 카메라 반경 500m 안의 건물만 스폰한다.
-    public float activationRadius = 500f;
-
-    public Material defaultMaterial;
-
+    public float activationRadius = 1000f;
     // 씬에 최대 500개까지만 건물을 올린다.
-    public int maxBuildings = 500;
+    public int maxBuildings = 10000;
     // 5초마다 카메라 위치를 확인하여 스폰/제거를 반복한다.
     public float checkInterval = 5f;
-
+    
     [Header("GeoJSON")]
     // StreamingAssets 폴더에 있는 GeoJSON 파일 이름
     public string geoJsonFileName = "mapo_building_final.geojson";
 
-    public BuildingInfo selectedBuilding { get; private set; }
+
+    public BuildingInfo selectedBuilding { get; private set; }  // 현재 선택된 건물
 
     // 건물 스폰 완료 시 발생하는 이벤트.
     // BuildingVisualManager 에서 구독하여 머티리얼을 적용한다.
     public static event Action<BuildingData, GameObject> OnBuildingSpawned;
 
-    // 건물 제거 시 발생하는 이벤트.
+    // 건물 제거 시 발생하는 이벤트
     public static event Action<string> OnBuildingRemoved;
+
+    // 건물 선택 시 발생하는 이벤트
+    public static event Action<BuildingInfo> OnBuildingSelected;
+
+    // 건물 선택 해제 시 발생하는 이벤트
+    public static event Action OnBuildingDeselected;
+
+    // 기본 건물 머테리얼
+    public Material defaultMaterial;
 
 
     // 현재 씬에 활성화된 건물 딕셔너리 (건물 id : GameObject)
@@ -198,7 +205,7 @@ public class BuildingManager : MonoBehaviour
     /// <summary>
     /// [동작 설명 3] BuildingData 정보를 해석하여 3D 메시 오브젝트를 생성하고 머티리얼을 적용합니다.
     /// </summary>
-    void SpawnBuilding(BuildingData data)
+    private void SpawnBuilding(BuildingData data)
     {
         string key = data.id ?? Guid.NewGuid().ToString();
 
@@ -324,8 +331,32 @@ public class BuildingManager : MonoBehaviour
     public IReadOnlyDictionary<string, GameObject> GetActiveBuildings()
         => activeBuildings;
 
+    // id로 스폰된 건물 GameObject를 반환
+    public GameObject GetBuilding(string id)
+    {
+        activeBuildings.TryGetValue(id, out GameObject obj);
+        return obj;
+    }
 
+    // 건물 선택 이벤트 실행
+    public void SelectBuilding(BuildingInfo info)
+    {
+        if (selectedBuilding != null)
+        {
+            OnBuildingDeselected?.Invoke();  // 기존 건물 있으면 해제
+        }
+        selectedBuilding = info;
+        OnBuildingSelected?.Invoke(info);
+    }
 
+    // 건물 선택 해제 이벤트 실행
+    public void DeselectBuilding()
+    {
+        if (selectedBuilding == null)
+            return;
 
+        selectedBuilding = null;
+        OnBuildingDeselected?.Invoke();
+    }
 
 }
