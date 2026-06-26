@@ -14,6 +14,12 @@ public class GreeneryCalculator : MonoBehaviour
 
     }
 
+    //각 건물 ID에 녹화 점수 할당
+    public void AllocateBuildingScore()
+    {
+
+    }
+
     // Top10 건물 리스트 제작
     public void Top10ScoreList()
     {
@@ -34,20 +40,22 @@ public class GreeneryCalculator : MonoBehaviour
 
     // 계산 함수 모음
 
-    //반경 내 건물 수 계산
-    public void CalcRadiusBuildingCount()
-    {
-        // 건물 별 중심점으로부터 250m 반경 내 건물 수
-    }
 
-
-    //격자 내부에 있는 건물들 점수 계산
+    //격자 내부에 있는 건물들 점수 계산후 점수 출력
     public void CalcGreeneryScore()
     {
         // 우선순위 함수 적용
         // 계산식 사용
         // 반경 내 건물 수, 높이, 면적 값 필요
     }
+
+
+    //반경 내 건물 수 계산
+    public void CalcRadiusBuildingCount()
+    {
+        // 건물 별 중심점으로부터 250m 반경 내 건물 수
+    }
+
 
 
     // 목표 녹화율에 따른 목표 녹화 면적 계산
