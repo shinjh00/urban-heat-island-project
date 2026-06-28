@@ -6,24 +6,7 @@ using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 
-/// <summary>
-/// 건물 생명주기를 관리하는 싱글톤 클래스.
-///
-/// 이 클래스가 하는 일:
-/// 1. DataParser 로 GeoJSON 을 비동기로 파싱하여 건물 데이터를 가져온다.
-/// 2. 카메라 위치를 주기적으로 확인한다.
-/// 3. 카메라 반경 안의 건물만 MeshBuilder 로 만들어서 씬에 올린다.
-/// 4. 카메라가 멀어진 건물은 씬에서 제거한다.
-///
-/// 주요 함수 목록:
-/// - InitializeAsync()      : GeoJSON 비동기 파싱 후 스폰 루프 시작
-/// - UpdateBuildingsLoop()  : 주기적으로 스폰/제거 반복
-/// - UpdateCameraPosition() : 카메라 위경도 갱신
-/// - SpawnNearbyBuildings() : 반경 안 건물 스폰
-/// - SpawnBuilding()        : 건물 하나 생성
-/// - RemoveFarBuildings()   : 멀어진 건물 제거
-/// - PlaceBuilding()        : Cesium 지형 위에 건물 배치
-/// </summary>
+// 건물 생명주기를 관리하는 싱글톤 클래스
 public class BuildingManager : MonoBehaviour
 {
     // 싱글톤
@@ -34,11 +17,11 @@ public class BuildingManager : MonoBehaviour
     public Cesium3DTileset terrainTileset;
 
     [Header("Spawn Settings")]
-    // 카메라 반경 500m 안의 건물만 스폰한다.
+    // 카메라 반경 몇m 안의 건물만 스폰할지
     public float activationRadius = 1000f;
-    // 씬에 최대 500개까지만 건물을 올린다.
+    // 씬에 최대 몇 개의 건물을 보이게 할것인지
     public int maxBuildings = 10000;
-    // 5초마다 카메라 위치를 확인하여 스폰/제거를 반복한다.
+    // 몇초마다 카메라 위치를 확인하여 스폰/제거를 반복할지
     public float checkInterval = 5f;
     
     [Header("GeoJSON")]
@@ -48,22 +31,20 @@ public class BuildingManager : MonoBehaviour
 
     public BuildingInfo selectedBuilding { get; private set; }  // 현재 선택된 건물
 
-    // 건물 스폰 완료 시 발생하는 이벤트.
-    // BuildingVisualManager 에서 구독하여 머티리얼을 적용한다.
+    // 건물 스폰 완료 시 발생 이벤트
     public static event Action<BuildingData, GameObject> OnBuildingSpawned;
 
-    // 건물 제거 시 발생하는 이벤트
+    // 건물 제거 시 발생 이벤트
     public static event Action<string> OnBuildingRemoved;
 
-    // 건물 선택 시 발생하는 이벤트
+    // 건물 선택 시 발생 이벤트
     public static event Action<BuildingInfo> OnBuildingSelected;
 
-    // 건물 선택 해제 시 발생하는 이벤트
+    // 건물 선택 해제 시 발생 이벤트
     public static event Action OnBuildingDeselected;
 
     // 기본 건물 머테리얼
     public Material defaultMaterial;
-
 
     // 현재 씬에 활성화된 건물 딕셔너리 (건물 id : GameObject)
     private Dictionary<string, GameObject> activeBuildings = new Dictionary<string, GameObject>();
@@ -95,67 +76,54 @@ public class BuildingManager : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// GeoJSON 을 비동기로 파싱하고 완료되면 스폰 루프를 시작한다.
-    /// 전체 흐름:
-    /// 1. ParseGeoJson() 호출 -> 백그라운드에서 파싱 시작, Task(영수증) 반환
-    /// 2. WaitUntil() 로 매 프레임 Task 완료 여부 확인
-    /// 3. 완료되면 Task.Result 로 BuildingData 리스트 받기
-    /// 4. 건물 스폰 루프 시작
-    /// 파싱하는 동안 Unity 씬은 계속 정상적으로 돌아간다.
-    /// </summary>
+    // GeoJSON 비동기 파싱 후 스폰 루프 시작
     IEnumerator InitializeAsync()
     {
         DataParser parser = new DataParser();
         System.Threading.Tasks.Task<List<BuildingData>> parseTask
             = parser.ParseGeoJson(geoJsonFileName);
 
+        // 파싱 완료 대기 (그동안 Unity 씬은 계속 돌아감)
         yield return new WaitUntil(() => parseTask.IsCompleted);
 
+        // 파싱 결과 받기
         buildingDataList = parseTask.Result;
         Debug.Log("[BuildingManager] 파싱 완료. 총 " + buildingDataList.Count + "개");
 
+        // 스폰 루프 시작
         StartCoroutine(UpdateBuildingsLoop());
     }
 
 
-    /// <summary>
-    /// 주기적으로 카메라 위치를 확인하여 건물을 스폰하고 제거하는 루프.
-    /// 3초 대기 후 시작하는 이유: Cesium 지형이 로딩될 시간을 준다.
-    /// </summary>
-
+    // 주기적으로 스폰/제거 반복
     IEnumerator UpdateBuildingsLoop()
     {
-        // Cesium 지형이 로딩될 시간을 준다.
+        // Cesium 지형이 로딩될 시간을 줌
         yield return new WaitForSeconds(3f);
 
         while (true)
         {
+            // 1) 카메라 위경도 갱신
             UpdateCameraPosition();
-
+            // 2) 반경 안 건물 스폰
             yield return StartCoroutine(SpawnNearbyBuildings());
-
+            // 3) 반경 밖 건물 제거
             RemoveFarBuildings();
-
+            // 4) checkInterval 초 대기 후 반복
             yield return new WaitForSeconds(checkInterval);
         }
     }
 
 
-    /// <summary>
-    /// 카메라의 현재 위경도를 갱신한다.
-    /// Unity 좌표 -> ECEF(지구 중심 좌표) -> 위경도 순서로 변환한다.
-    /// </summary>
+    // Dynamic 카메라 위경도 갱신 : Unity 좌표 -> ECEF(지구중심좌표) -> 위경도 좌표
     void UpdateCameraPosition()
     {
         Camera cam = Camera.main;
         if (cam == null) return;
 
         Vector3 camPos = cam.transform.position;
-
         double3 camECEF = georeference.TransformUnityPositionToEarthCenteredEarthFixed(
                               new double3(camPos.x, camPos.y, camPos.z));
-
         double3 camLLH = CesiumWgs84Ellipsoid.EarthCenteredEarthFixedToLongitudeLatitudeHeight(camECEF);
 
         camLon = camLLH.x;
@@ -163,13 +131,10 @@ public class BuildingManager : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 카메라 반경 안에 있는 건물을 스폰한다.
-    /// LINQ 로 조건에 맞는 건물만 필터링하여 가까운 순서대로 스폰한다.
-    /// 30개마다 yield return null 로 프레임을 나눠서 한 프레임에 너무 많이 생성되지 않게 한다.
-    /// </summary>
+    // 반경 안 건물 스폰
     IEnumerator SpawnNearbyBuildings()
     {
+        // LINQ로 조건에 맞는 건물만 필터링
         List<BuildingData> nearby = buildingDataList
             .Where(d => IsWithinRadius(d))
             .Where(d => !IsAlreadySpawned(d))
@@ -185,26 +150,13 @@ public class BuildingManager : MonoBehaviour
         }
 
         if (count > 0)
-            Debug.Log("[BuildingManager] 스폰 시도: " + count
-                      + " | 성공:" + statSpawned
-                      + " 실패:" + statFailed
-                      + " | 활성:" + activeBuildings.Count);
+            Debug.Log("[BuildingManager] 스폰 시도: " + count + " | 성공:" + statSpawned
+                      + " 실패:" + statFailed + " | 활성:" + activeBuildings.Count);
         yield break;
     }
 
-    /// <summary>
-    /// BuildingData 로 건물 GameObject 를 생성하고 씬에 배치한다.
-    /// 전체 흐름:
-    /// 1. MeshBuilder 로 메시 생성
-    /// 2. GameObject 에 MeshFilter, MeshRenderer, MeshCollider, BuildingInfo 부착
-    /// 3. PlaceBuilding() 코루틴으로 Cesium 지형 위에 배치
-    /// </summary>
-    /// <summary>
-    /// BuildingData 로 건물 GameObject 를 생성하고 씬에 배치한다.
-    /// </summary>
-    /// <summary>
-    /// [동작 설명 3] BuildingData 정보를 해석하여 3D 메시 오브젝트를 생성하고 머티리얼을 적용합니다.
-    /// </summary>
+    // 건물 오브젝트 하나를 생성할 때 실행되는 내용
+    // BuildingData로 건물 GameObject를 생성하고 씬에 배치
     private void SpawnBuilding(BuildingData data)
     {
         string key = data.id ?? Guid.NewGuid().ToString();
@@ -212,7 +164,7 @@ public class BuildingManager : MonoBehaviour
         if (activeBuildings.ContainsKey(key)) return;
         if (GameObject.Find("Building_" + key) != null) return;
 
-        // ── 1단계: 3D 메시(외형 뼈대) 생성 ──
+        // 1) MeshBuilder로 메시 생성
         Mesh mesh = MeshBuilder.BuildPolygonMesh(data.polygon, data.height);
         if (mesh == null)
         {
@@ -220,41 +172,32 @@ public class BuildingManager : MonoBehaviour
             return;
         }
 
-        // ── 2단계: 유니티 GameObject 생성 및 컴포넌트 조립 ──
+        // 2) GameObject 생성 및
+        // MeshFilter, MeshRenderer, MeshCollider, BuildingInfo 컴포넌트 부착
         GameObject obj = new GameObject("Building_" + key);
         obj.transform.SetParent(georeference.transform);
-
         activeBuildings[key] = obj;
         statSpawned++;
 
         MeshFilter mf = obj.AddComponent<MeshFilter>();
         mf.mesh = mesh;
-
         MeshRenderer mr = obj.AddComponent<MeshRenderer>();
-
         mr.enabled = false;
-
         mr.material = defaultMaterial;
-
         MeshCollider mc = obj.AddComponent<MeshCollider>();
-
         mc.sharedMesh = mesh;
         BuildingInfo info = obj.AddComponent<BuildingInfo>();
         info.data = data;
 
-        // ── 3단계: Cesium 3D 지형 위에 밀착 배치 ──
+        // 3) PlaceBuilding() 코루틴으로 Cesium 지형 위에 배치
         StartCoroutine(PlaceBuilding(obj, data.lon, data.lat));
 
+        // 4) 건물 생성이 끝났음을 알리는 이벤트 트리거
         OnBuildingSpawned?.Invoke(data, obj);
     }
 
 
-    /// <summary>
-    /// 카메라 반경 밖으로 벗어난 건물을 제거한다.
-    /// 반경의 1.5배 거리를 기준으로 삼는 이유:
-    /// 정확히 반경 경계에서 스폰/제거가 반복되는 현상(깜빡임)을 방지하기 위해서다.
-    /// </summary>
-    /// 
+    // 카메라 반경 밖으로 벗어난 건물 제거
     void RemoveFarBuildings()
     {
         List<string> toRemove = new List<string>();
@@ -262,8 +205,9 @@ public class BuildingManager : MonoBehaviour
         foreach (KeyValuePair<string, GameObject> kvp in activeBuildings)
         {
             BuildingData data = buildingDataList.Find(d => d.id == kvp.Key);
-            if (data == null) { toRemove.Add(kvp.Key); continue; }
-
+            if (data == null) {
+                toRemove.Add(kvp.Key); continue;
+            }
             if (GetDistanceMeters(camLat, camLon, data.lat, data.lon) > activationRadius * 1.5f)
             {
                 Destroy(kvp.Value);
@@ -282,11 +226,7 @@ public class BuildingManager : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// Cesium 지형 높이를 샘플링하여 건물을 올바른 위치에 배치한다.
-    /// CesiumGlobeAnchor : 위경도 좌표로 GameObject 위치를 고정하는 컴포넌트
-    /// SampleHeightMostDetailed : 해당 위경도의 지형 높이를 가져오는 함수
-    /// </summary>
+    // Cesium 지형 높이를 샘플링하여 올바른 위치에 건물 배치
     IEnumerator PlaceBuilding(GameObject obj, double lon, double lat)
     {
         yield return null;
@@ -315,19 +255,26 @@ public class BuildingManager : MonoBehaviour
     }
 
 
+    #region ``주요 함수에 필요한 보조 함수들``
+    // 건물이 카메라 활성 반경 안에 있는지 확인
     private bool IsWithinRadius(BuildingData data)
         => GetDistanceMeters(camLat, camLon, data.lat, data.lon) <= activationRadius;
 
+    // 건물이 이미 스폰되어 있는지 확인
     private bool IsAlreadySpawned(BuildingData data)
         => activeBuildings.ContainsKey(data.id ?? "");
 
+    // 두 위경도 좌표 사이의 거리를 m 단위로 계산
     private double GetDistanceMeters(double lat1, double lon1, double lat2, double lon2)
     {
         double dlat = (lat2 - lat1) * 111320.0;
         double dlon = (lon2 - lon1) * 111320.0 * Math.Cos(lat1 * Math.PI / 180.0);
         return Math.Sqrt(dlat * dlat + dlon * dlon);
     }
+    #endregion
 
+
+    // 활성 건물 전체 딕셔너리 반환
     public IReadOnlyDictionary<string, GameObject> GetActiveBuildings()
         => activeBuildings;
 
@@ -338,6 +285,7 @@ public class BuildingManager : MonoBehaviour
         return obj;
     }
 
+    #region ``BuildingSelector.cs 관련 함수``
     // 건물 선택 이벤트 실행
     public void SelectBuilding(BuildingInfo info)
     {
@@ -358,5 +306,7 @@ public class BuildingManager : MonoBehaviour
         selectedBuilding = null;
         OnBuildingDeselected?.Invoke();
     }
+    #endregion
+
 
 }

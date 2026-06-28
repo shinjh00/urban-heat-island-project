@@ -61,7 +61,7 @@ public class BuildingSelector : MonoBehaviour
 
     private void HandleBuildingSelected(BuildingInfo info)
     {
-        // 기존 선택 건물이 있다면 복구
+        // 기존 선택 건물이 있다면 색상 복구
         RemoveHighlight();
 
         GameObject obj = BuildingManager.Instance.GetBuilding(info.data.id);
@@ -86,7 +86,7 @@ public class BuildingSelector : MonoBehaviour
     private void HandleBuildingDeselected()
     {
         RemoveHighlight();
-        UIManager.Instance.HideInfoPanel();
+        UIManager.Instance.HideBuildingInfo();
     }
 
     private void RemoveHighlight()
