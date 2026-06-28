@@ -35,9 +35,9 @@ public class BuildingManager : MonoBehaviour
 
     [Header("Spawn Settings")]
     // 카메라 반경 500m 안의 건물만 스폰한다.
-    public float activationRadius = 1000f;
+    public float activationRadius = 500;
     // 씬에 최대 500개까지만 건물을 올린다.
-    public int maxBuildings = 10000;
+    public int maxBuildings = 500;
     // 5초마다 카메라 위치를 확인하여 스폰/제거를 반복한다.
     public float checkInterval = 5f;
     
