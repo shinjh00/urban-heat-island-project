@@ -1,11 +1,9 @@
 from .kma_service import KmaWeatherService
-from .sdot_service import SdotWeatherService
 
 class WeatherServiceFactory:
     """[Factory] 클라이언트 요청 소스 문자열에 따라 알맞은 서비스를 동적 반환"""
     _services = {
         "kma": KmaWeatherService(),
-        "sdot": SdotWeatherService()
     }
 
     @staticmethod
