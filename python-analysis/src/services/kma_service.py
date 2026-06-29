@@ -163,6 +163,7 @@ class KmaWeatherService(BaseWeatherService):
         self.api_url = "https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-sfc_obs_nc_api"
         self.auth_key = ""
         self.nc_path = "../data/sfc_grid_latlon.nc"
+
     
         self._load_nc_coordinates()
 
