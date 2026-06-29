@@ -393,7 +393,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &124998549
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -407,7 +407,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GreeneryVisualizer
   colorTable: {fileID: 11400000, guid: 7d05b50baec06ac4bad66a6760def59d, type: 2}
-  currentMonth: 2
+  currentMonth: 7
   top10Color: {r: 0.05, g: 0.35, b: 0.12, a: 1}
   blinkColor: {r: 1, g: 1, b: 1, a: 1}
   blinkInterval: 0.15
@@ -553,7 +553,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &348680481
 Transform:
   m_ObjectHideFlags: 0
@@ -660,6 +660,7 @@ Transform:
   - {fileID: 681000719017830074}
   - {fileID: 124998550}
   - {fileID: 348680481}
+  - {fileID: 665381096}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &401386316
@@ -1143,6 +1144,11 @@ MonoBehaviour:
   textArea3: {fileID: 989047049}
   textArea4: {fileID: 1689686533}
   textArea5: {fileID: 1602915808}
+--- !u!4 &665381096 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+  m_PrefabInstance: {fileID: 6221364862469655419}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &676672681
 GameObject:
   m_ObjectHideFlags: 0
@@ -3875,6 +3881,7 @@ MonoBehaviour:
   checkInterval: 5
   geoJsonFileName: mapo_building_final.geojson
   defaultMaterial: {fileID: 2100000, guid: a140bcd43f806234680eb39bb5043835, type: 2}
+  gridLoadRadius: 750
 --- !u!1 &1985410878
 GameObject:
   m_ObjectHideFlags: 0
@@ -4444,6 +4451,71 @@ MonoBehaviour:
   m_FadeFactor: 1
   version: 1
   m_DecalLayerMask: 1
+--- !u!1001 &6221364862469655419
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 389076910}
+    m_Modifications:
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2421.775
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -965.1899
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1767.1748
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540549737939471750, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538786245325350721, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: m_Name
+      value: Grid
+      objectReference: {fileID: 0}
+    - target: {fileID: 4127477718026281358, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: geoRef
+      value: 
+      objectReference: {fileID: 389076909}
+    - target: {fileID: 4127477718026281358, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
+      propertyPath: georeferenceTransform
+      value: 
+      objectReference: {fileID: 389076910}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 15e49acd5d57ac34ba6a748fe644a954, type: 3}
 --- !u!114 &7357798457667704513
 MonoBehaviour:
   m_ObjectHideFlags: 0

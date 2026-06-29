@@ -12,17 +12,19 @@ public class ControlPanel : MonoBehaviour
     private GameObject[] contentPanels;
 
 
+
+
     void Start()
     {
-        // 시작할 때 첫 번째 탭(0번)만 열기
-        SwitchTab(0);
-
-        // 버튼 리스너 등록 자동화
+        // 버튼 초기 색상 캐싱 & 버튼 리스너 등록 자동화
         for (int i = 0; i < tabButtons.Length; i++)
         {
-            //int index = i; // 클로저(Closure) 문제를 피하기 위해 지역 변수 복사
-            tabButtons[i].onClick.AddListener(() => SwitchTab(i));
+            int index = i;  // SwitchTab() 실행 시 반복문때문에 항상 i=3이 되는 것을 막으려고
+            tabButtons[i].onClick.AddListener(() => SwitchTab(index));
         }
+
+        // 시작할 때 첫 번째 탭(0번)만 열기
+        SwitchTab(0);
     }
 
     public void SwitchTab(int tabIndex)
@@ -35,10 +37,13 @@ public class ControlPanel : MonoBehaviour
             // 선택한 인덱스의 패널만 true, 나머지는 false
             contentPanels[i].SetActive(i == tabIndex);
 
-            // 선택된 버튼은 진하게 표시
+            // 선택한 탭 버튼의 색상 변경
             if (tabButtons[i].TryGetComponent<Image>(out Image btnImage))
             {
-                btnImage.color = Color.whiteSmoke;
+                if (i == tabIndex)
+                    btnImage.color = new Color(1.0f, 1.0f, 1.0f, 0.98f);
+                else
+                    btnImage.color = new Color(1.0f, 1.0f, 1.0f, 0.90f);
             }
         }
     }

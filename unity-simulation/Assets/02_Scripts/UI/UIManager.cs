@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     public TMP_Text textArea5;
 
 
+    // 현재 선택된 건물 데이터
     private BuildingInfo currentBuildingInfo;
 
     private void Awake()
@@ -26,8 +27,8 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
-    // UIManager.Instance.ShowBuildingInfo(data);
-    // BuildingSelector에 HandleBuildingSelected
+    #region ``Building Info Panel 제어``
+    // BuildingSelector에서 HandleBuildingSelected() 실행 시 호출
     public void ShowBuildingInfo(BuildingInfo info)
     {
         currentBuildingInfo = info;
@@ -49,20 +50,46 @@ public class UIManager : MonoBehaviour
         Debug.Log($"[UIManager] BuildingInfo 출력 {info.data.id} {info.zoneID}");
     }
 
+    // BuildingSelector에서 HandleBuildingDeselected() 실행 시 호출
+    public void HideBuildingInfo()
+    {
+        if (currentBuildingInfo != null)
+            currentBuildingInfo = null;
+
+        if (textArea1 != null) textArea1.text = string.Empty;
+        if (textArea2 != null) textArea2.text = string.Empty;
+        if (textArea3 != null) textArea3.text = string.Empty;
+        if (textArea4 != null) textArea4.text = string.Empty;
+        if (textArea5 != null) textArea5.text = string.Empty;
+
+        HidePanel(infoPanel);
+    }
+    #endregion
+
+
+    #region `` Result Panel 제어``
+    public void ShowResult()
+    {
+        //ShowPanel(resultPanel);
+    }
+
+    public void HideResult()
+    {
+        //HidePanel(resultPanel);
+    }
+    #endregion
+
+
     private void ShowPanel(GameObject panel)
     {
         if (panel != null)
             panel.SetActive(true);
     }
 
-    public void HideInfoPanel()
+    private void HidePanel(GameObject panel)
     {
-        if (infoPanel != null)
-            infoPanel.SetActive(false);
+        if (panel != null)
+            panel.SetActive(false);
     }
-
-    // HidePanel() : 패널 닫기
-
-
 
 }

@@ -774,6 +774,7 @@ Transform:
   - {fileID: 1061587942}
   - {fileID: 508335579479312271}
   - {fileID: 681000719017830074}
+  - {fileID: 7275831997453530894}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &401386316
@@ -3906,10 +3907,11 @@ MonoBehaviour:
   georeference: {fileID: 389076909}
   terrainTileset: {fileID: 825902566}
   activationRadius: 500
-  defaultMaterial: {fileID: 2100000, guid: a140bcd43f806234680eb39bb5043835, type: 2}
   maxBuildings: 500
   checkInterval: 5
   geoJsonFileName: mapo_building_final.geojson
+  defaultMaterial: {fileID: 2100000, guid: a140bcd43f806234680eb39bb5043835, type: 2}
+  gridLoadRadius: 500
 --- !u!1 &1892714751
 GameObject:
   m_ObjectHideFlags: 0
@@ -4534,6 +4536,20 @@ MonoBehaviour:
   heightMeter: 5926.03
   projectionDepth: 500
   decalHeight: 151.0473
+--- !u!114 &3221345869485095526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8549346631044865481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53cb0ee833312349bde2d514ad4cac3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::api_test
+  apiServerIP: 127.0.0.1
+  apiTargetTime: 202408112300
 --- !u!114 &3904078628323937762
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4617,6 +4633,21 @@ MonoBehaviour:
   m_FadeFactor: 1
   version: 1
   m_DecalLayerMask: 1
+--- !u!4 &7275831997453530894
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8549346631044865481}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -249.72421, y: -884.5556, z: 251.91313}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 389076910}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7357798457667704513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4639,6 +4670,38 @@ MonoBehaviour:
   heightMeter: 8325.893
   projectionDepth: 500
   decalHeight: 151.0473
+--- !u!1 &8549346631044865481
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7275831997453530894}
+  - component: {fileID: 3221345869485095526}
+  - component: {fileID: 9150915579621710598}
+  m_Layer: 0
+  m_Name: Grid
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &9150915579621710598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8549346631044865481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c97c90c8d23bed34c942a690c24c2ef4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeatherGridVisualizer
+  geoRef: {fileID: 0}
+  georeferenceTransform: {fileID: 0}
 --- !u!114 &9215309370375621031
 MonoBehaviour:
   m_ObjectHideFlags: 0
