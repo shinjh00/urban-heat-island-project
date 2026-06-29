@@ -11,6 +11,20 @@ public class ControlPanel : MonoBehaviour
     [SerializeField]
     private GameObject[] contentPanels;
 
+    [Header("시각화 탭")]
+    [SerializeField]
+    private Button visualizationButton;
+
+    [Header("옥상 녹화 시뮬레이션 탭")]
+    [SerializeField]
+    private Button selectBuildingButton;
+    [SerializeField]
+    private Button startGreeneryButton;
+
+    [Header("그늘막 설치 시뮬레이션 탭")]
+    [SerializeField]
+    private Button installShadeButton;
+
 
 
 

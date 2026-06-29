@@ -43,11 +43,11 @@ public class UIManager : MonoBehaviour
         if (textArea3 != null)
             textArea3.text = "높이 : " + info.data.height;
         if (textArea4 != null)
-            textArea4.text = "ZoneID : " + info.zoneID;
+            textArea4.text = "ZoneID : " + info.zoneId;
         if (textArea5 != null)
             textArea5.text = "온도 : " + info.temperature;
 
-        Debug.Log($"[UIManager] BuildingInfo 출력 {info.data.id} {info.zoneID}");
+        Debug.Log($"[UIManager] BuildingInfo 출력 {info.data.id} {info.zoneId}");
     }
 
     // BuildingSelector에서 HandleBuildingDeselected() 실행 시 호출
