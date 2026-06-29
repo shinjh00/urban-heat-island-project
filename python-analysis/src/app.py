@@ -89,5 +89,4 @@ if __name__ == "__main__":
 # png 테스트   http://127.0.0.1:5000/api/weather/mapo-decal.png?tm=202408112300
 # 좌표         http://127.0.0.1:5000/api/weather/mapo-decal.json
 # 센서 데이터   http://127.0.0.1:5000/api/sdot/mapo?date=2026-06-21
-# 다른 PC의 웹 브라우저나 유니티 C# 스크립트 주소에 localhost 대신 서버 PC의 내부 IP를 넣어서 요청
-# ip : 192.168.10.31
+
