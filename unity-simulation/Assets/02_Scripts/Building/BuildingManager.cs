@@ -67,6 +67,10 @@ public class BuildingManager : MonoBehaviour
     public float gridLoadRadius = 500f;
 
 
+    // 시뮬레이션 시작 전엔 어떤 스폰도 하지 않도록 막는 마스터 스위치
+    private bool spawnEnabled = false;
+
+
 
     void Awake()
     {
@@ -111,7 +115,15 @@ public class BuildingManager : MonoBehaviour
 
         while (true)
         {
-            // ▼ 그리드 모드면 카메라 추적 멈추기 ▼
+            // 그리드 모드면 카메라 추적 멈추기
+            // 구역 선택 전(spawnEnabled == false)이면 아무 것도 안 하고 대기
+            if (!spawnEnabled)
+            {
+                yield return new WaitForSeconds(checkInterval);
+                continue;
+            }
+
+            // 그리드 모드면 카메라 추적 멈추기
             if (gridMode)
             {
                 yield return new WaitForSeconds(checkInterval);
@@ -273,6 +285,7 @@ public class BuildingManager : MonoBehaviour
     public void FocusOnGrid(double centerLon, double centerLat)
     {
         gridMode = true;
+        spawnEnabled = true;
         zoneCenterLon = centerLon;
         zoneCenterLat = centerLat;
 
