@@ -8,10 +8,10 @@ public class BuildingInfo : MonoBehaviour
     public BuildingData data;
 
     // Zone Id 값
-    public int zoneID = 1;
+    public int zoneId;
 
     // 온도
-    public float temperature = 29.5f;
+    public float temperature;
 
     // 반경 0m 내에 있는 건물 수
     public int radiusBuildingCount;

@@ -1,4 +1,5 @@
 ﻿using CesiumForUnity;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -92,14 +93,24 @@ public class BuildingManager : MonoBehaviour
     IEnumerator InitializeAsync()
     {
         DataParser parser = new DataParser();
-        System.Threading.Tasks.Task<List<BuildingData>> parseTask
-            = parser.ParseGeoJson(geoJsonFileName);
+
+        // GeoJSON 파일에서 원시 JObject 리스트를 비동기로 받아옴
+        System.Threading.Tasks.Task<List<JObject>> parseTask = parser.ParseGeoJson(geoJsonFileName);
 
         // 파싱 완료 대기 (그동안 Unity 씬은 계속 돌아감)
         yield return new WaitUntil(() => parseTask.IsCompleted);
 
-        // 파싱 결과 받기
-        buildingDataList = parseTask.Result;
+        List<JObject> rawFeatures = parseTask.Result;
+
+        // 받아온 JObject들을 BuildingData로 변환 (Unity 씬 돌아감)
+        foreach (JObject feature in rawFeatures)
+        {
+            BuildingData data = parser.ExtractBuildingData(feature);
+            if (data != null)
+            {
+                buildingDataList.Add(data);
+            }
+        }
         Debug.Log("[BuildingManager] 파싱 완료. 총 " + buildingDataList.Count + "개");
 
         // 스폰 루프 시작

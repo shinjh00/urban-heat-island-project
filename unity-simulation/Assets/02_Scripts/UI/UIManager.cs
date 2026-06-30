@@ -14,6 +14,10 @@ public class UIManager : MonoBehaviour
     public TMP_Text textArea5;
 
 
+    // 시각화 드롭다운에서 선택된 날짜를 전역적으로 기억할 변수
+    public string CurrentSelectedDate { get; private set; }
+
+
     // 현재 선택된 건물 데이터
     private BuildingInfo currentBuildingInfo;
 
@@ -25,7 +29,21 @@ public class UIManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // 실행 시 EventSystem 찾고 없으면 할당
+
+        // 시각화 날짜 초기화 방어 코드
+        CurrentSelectedDate = "2026년 06월";
     }
+
+    #region ``시각화 기능``
+    public void SetSelectedDate(string dateText)
+    {
+        CurrentSelectedDate = dateText;
+        Debug.Log($"[UIManager] 시각화 - 선택된 날짜 {CurrentSelectedDate}");
+    }
+
+    #endregion
 
     #region ``Building Info Panel 제어``
     // BuildingSelector에서 HandleBuildingSelected() 실행 시 호출
@@ -43,11 +61,11 @@ public class UIManager : MonoBehaviour
         if (textArea3 != null)
             textArea3.text = "높이 : " + info.data.height;
         if (textArea4 != null)
-            textArea4.text = "ZoneID : " + info.zoneID;
+            textArea4.text = "ZoneID : " + info.zoneId;
         if (textArea5 != null)
             textArea5.text = "온도 : " + info.temperature;
 
-        Debug.Log($"[UIManager] BuildingInfo 출력 {info.data.id} {info.zoneID}");
+        Debug.Log($"[UIManager] BuildingInfo 출력 {info.data.id} {info.zoneId}");
     }
 
     // BuildingSelector에서 HandleBuildingDeselected() 실행 시 호출
