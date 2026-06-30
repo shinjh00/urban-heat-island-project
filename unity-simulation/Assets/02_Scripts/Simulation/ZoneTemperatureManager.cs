@@ -9,7 +9,6 @@ public class ZoneTemperatureManager : MonoBehaviour
 {
     public List<ZoneData> zoneList = new List<ZoneData>();
 
-    public Material gridMaterial;
 
     // <원래 들어가야 할 코드>
     //public async Task ~~ () { }
@@ -27,16 +26,52 @@ public class ZoneTemperatureManager : MonoBehaviour
     // SimulationController에서 사용
     public async Task FetchZoneData()
     {
+        // NetworkManager의 FetchZoneFromApi() 코루틴 결과를 Task로 변환하기 위해 필요
+        // IEnumerator나 콜백 기반 API는 async/await와 직접 연결할 수 없으므로
+        // 이렇게 Task 상자를 만들고 파싱 및 할당 작업이 끝나면 상자를 닫는다는 개념
+        TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
+
+        StartCoroutine(NetworkManager.Instance.FetchZoneFromApi((rawJson) =>
+        {
+            tcs.SetResult(rawJson);
+        }));
+
+        // 통신이 완료될 때까지 비동기로 대기
+        string rawJsonText = await tcs.Task;
+
+        if (string.IsNullOrEmpty(rawJsonText))
+        {
+            Debug.LogError("[ZoneTemperatureManager] 서버로부터 받은 데이터가 없습니다.");
+            return;
+        }
+
+        // 받아온 rawJsonText를 파싱하고 객체화
         DataParser parser = new DataParser();
 
-        // 파일을 파싱해서 JObject 리스트로 가져옴
-        List<JObject> features = await parser.ParseGeoJson("grid.geojson");
+        List<JObject> features = await Task.Run(() =>
+        {
+            List<JObject> list = new List<JObject>();
+            JObject root = JObject.Parse(rawJsonText);
+            foreach (JToken feat in (JArray)root["features"])
+            {
+                list.Add((JObject)feat);
+            }
+            return list;
+        });
 
         // Data 추출 함수를 통해 객체화
         zoneList = parser.ExtractZoneData(features);
 
-        Debug.Log($"[ZoneTemperatureManager] Zone {zoneList.Count}개 로드 완료");
-        Debug.Log($"[ZoneTemperatureManager] Zone - {zoneList[0].zoneId}, {zoneList[0].polygon}, {zoneList[0].temperature}");
+        if (zoneList != null && zoneList.Count > 0)
+        {
+            Debug.Log($"[ZoneTemperatureManager] Zone {zoneList.Count}개 로드 완료");
+            Debug.Log($"[ZoneTemperatureManager] Zone - {zoneList[0].zoneId}, {zoneList[0].polygon}, {zoneList[0].temperature}");
+        }
+        else
+        {
+            Debug.LogWarning("[ZoneTemperatureManager] 로드된 데이터가 없습니다.");
+        }
+        
     }
 
 
