@@ -12,42 +12,52 @@ public class GreeneryCalculator : MonoBehaviour
 
     [Header("Greenery Calculation Settings")]
     public double searchRadiusMeters = 250.0; // 반경 설정 (단위: 미터)
-
     private float MaxExpectedTempEffect = 0.42f;
 
-    //리스트 추출 함수모음
+    //Controller에게 연산이 완료되었음을 알리는 이벤트
+    public static event Action<CalculationResultData> OnCalculationCompleted;
 
-
-
-    //높은 점수 순서대로 리스트 제작
-    public void AscendingScoreList()
+    private void Start()
     {
-
+        // [구독] Controller가 요청하는 이벤트를 항시 대기합니다.
+        SimulationController.OnCalculationRequested += ExecuteCalculation;
     }
 
-    //각 건물 ID에 녹화 점수 할당
-    public void AllocateBuildingScore()
+    private void OnDestroy()
     {
-
+        //[구독 해제]
+        SimulationController.OnCalculationRequested -= ExecuteCalculation;
     }
 
-    // Top10 건물 리스트 제작
-    public void Top10ScoreList()
+
+    /// <summary>
+    /// Controller가 던진 데이터를 받아 무겁고 복잡한 수식 연산 처리를 전담하는 함수
+    /// </summary>
+    private void ExecuteCalculation(CalculationRequestData request)
     {
-        // AscendingScoreList에서 만든거에서 앞에 10개 추출
+        CalculationResultData result = new CalculationResultData();
+        result.buildingScores = new Dictionary<string, float>();
+        result.radiusCounts = new Dictionary<string, int>();
+
+        // 1. 기본 면적 및 온도 효과 수식 처리
+        result.totalAreaSize = CalcTotalAreaSize(request.targetZoneBuildings);
+        result.expectedGreeneryArea = CalcTotalGreeneryArea(result.totalAreaSize, request.greeneryRate);
+        result.expectedTempEffect = CalcExpectedTempEffect(request.greeneryRate);
+
+        // 2. 루프를 돌며 각 빌딩별 개별 점수 및 반경 연산 진행
+        foreach (var bSimData in request.targetZoneBuildings)
+        {
+            int radiusCount = CalcRadiusBuildingCount(bSimData, request.allBuildings);
+            float score = CalcGreeneryScore(radiusCount, bSimData.areaSize, bSimData.height);
+
+            // 전달용 사전에 ID 기반으로 결과 저장
+            result.radiusCounts[bSimData.buildingID] = radiusCount;
+            result.buildingScores[bSimData.buildingID] = score;
+        }
+
+        // 3. [이벤트 발행] 연산이 완료된 최종 바구니를 전방으로 발사합니다.
+        OnCalculationCompleted?.Invoke(result);
     }
-
-    // 녹화 건물 수 카운트 제작
-    public void CountingGreenaryBuilding()
-    {
-        //녹화된 건물 수 세기 enum 으로 카운트
-        //enum 에서 selted 값 + 10 (탑텐수)
-        
-        //반환값은 int
-
-        //이 값을 나중에 controller가 ui 결과 패널에 전달할거임
-    }
-
 
     // 계산 함수 모음
 
@@ -94,9 +104,8 @@ public class GreeneryCalculator : MonoBehaviour
     }
 
     /// <summary>
-    /// 특정 구역(zoneID)에 속한 건물들의 총 면적(AreaSize)을 계산하여 반환합니다.
+    /// 특정 구역(zoneID)에 속한 건물들의 총 면적(AreaSize)을 계산하여 반환
     /// </summary>
-    /// <param name="targetZoneBuildings">필터링된 해당 구역의 건물 리스트</param>
     public float CalcTotalAreaSize(List<SpawnedAllBuildings> targetZoneBuildings)
     {
         // 리스트가 비어있다면 0을 반환
@@ -117,16 +126,6 @@ public class GreeneryCalculator : MonoBehaviour
     }
 
 
-
-    //리스트 토대로 차례대로 목표 녹화 면적 까지 더함
-    public void CalcUntilGreeneryGoal()
-    {
-        // AscendingScoreList에서 만든 리스트 순회하며
-        // 목표 녹화 면적에 도달할 때까지 누적 더하기 +=
-        //목표 녹화 면적 충족시 계산 과정 종료 (반복문, 코루틴 아마 사용해야할듯?)
-    }
-
-
     // 온도 관련 함수모음
 
     // 예상 감소 온도(논문) 추출
@@ -139,22 +138,6 @@ public class GreeneryCalculator : MonoBehaviour
         float expectedTempEffect = MaxExpectedTempEffect / 100 * greeneryRate;
 
         return expectedTempEffect;
-
-
-    }
-
-
-    // 녹화 전후 온도 감소 정도 계산
-    public void CalcBeforeAfterGreenery()
-    {
-        // <파라미터값>
-        // 녹화 전 기존 온도
-        // CalcExpectedMinusTemp 에서 추출한 내려가는 값
-
-        // <return값>
-        // 녹화 후 예상 감소 온도 (녹화 전 기존 온도 - CalcExpectedMinusTemp 추출한 예상 감소 온도)
-
-        // => 목표 녹화율 높을수록 감소 온도 커짐
     }
 
 

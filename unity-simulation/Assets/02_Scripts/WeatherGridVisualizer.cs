@@ -81,7 +81,7 @@ public class WeatherGridVisualizer : MonoBehaviour
 
     private IEnumerator BlinkAndLoad(WeatherGridItem grid, MeshRenderer mr)
     {
-        // 1️⃣ Blink (2초간 0.2초 간격)
+        // 1️. Blink (2초간 0.2초 간격)
         float duration = 2f;
         float interval = 0.2f;
         float elapsed = 0f;
@@ -94,12 +94,25 @@ public class WeatherGridVisualizer : MonoBehaviour
         }
         mr.enabled = true;  // 끝나면 켜진 상태로
 
-        // 2️⃣ 중심점 계산
+        // 2️. 중심점 계산
         var (lon, lat) = grid.GetCenter();
         Debug.Log($"[BlinkAndLoad] 중심점 계산 완료 — ({lon:F6}, {lat:F6})");
 
-        // 3️⃣ 750m 건물 로드
+        // 3️. 750m 건물 로드
         BuildingManager.Instance.FocusOnGrid(lon, lat);
+
+        // 4. 격자 ID(string)와 온도 데이터(double)를 함께 컨트롤러에 주입하며 호출합니다.
+        if (SimulationController.Instance != null)
+        {
+            SimulationController.Instance.ProcessBuildingGreeneryRankings(
+                grid.gridId.ToString(),
+                grid.temperature
+            );
+        }
+        else
+        {
+            Debug.LogError("[WeatherGridVisualizer] 씬에 SimulationController 인스턴스가 존재하지 않습니다.");
+        }
     }
 
 
@@ -256,6 +269,18 @@ public class WeatherGridVisualizer : MonoBehaviour
         double t = Mathf.InverseLerp((float)dynamicMinTemp, (float)dynamicMaxTemp, (float)temp);
         return Color.Lerp(Color.blue, Color.red, (float)t);
     }
+
+    //그리드 보여주기
+    public void ShowGrids()
+    {
+        if (api_test.Instance == null || !api_test.Instance.IsGeoJsonLoaded)
+        {
+            Debug.LogWarning(" 데이터 아직 로딩 안됨");
+            return;
+        }
+        VisualizeWeatherGrids();
+    }
+
 
     private void ClearExistingGrids()
     {
