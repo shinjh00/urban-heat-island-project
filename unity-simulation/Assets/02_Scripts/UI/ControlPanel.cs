@@ -141,6 +141,7 @@ public class ControlPanel : MonoBehaviour
     // 옥상 녹화 구역 선택 버튼을 눌렀을 때 실행될 함수
     private void OnSelectGreeneryZoneButtonClicked()
     {
-        // 위에 함수 참고해서 구현
+        Debug.Log("[ControlPanel] 구역 선택 버튼 클릭");
+        ZoneManager.Instance.RequestGridShow();
     }
 }

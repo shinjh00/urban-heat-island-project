@@ -1,37 +1,33 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Grid GameObject에 붙일 컴포넌트
+// 사용 예시
+//      => WeatherGridItem clickedGrid = hit.collider.GetComponent<WeatherGridItem>();
 public class WeatherGridItem : MonoBehaviour
 {
-    // 클릭 시 꺼내 쓸 격자 정보 데이터들
-    public int gridId;
-    public double temperature;
-    public List<double[]> polygonPoints = new List<double[]>();
-
+    public ZoneData data;
 
     public (double lon, double lat) GetCenter()
     {
-        var pts = polygonPoints;
-        int n = pts.Count;
+        if (data?.polygon == null) return (0.0, 0.0);
 
-        // GeoJSON 폴리곤은 첫 점 == 끝 점으로 닫혀있음 → 끝 점 1개는 평균에서 제외
-        if (n > 1 && pts[0][0] == pts[n - 1][0] && pts[0][1] == pts[n - 1][1])
-            n--;
+        int n = data.polygon.GetLength(0);
 
-        double lon = 0, lat = 0;
+        // 폴리곤이 닫혀있는지 확인 (첫 점과 마지막 점이 같음)
+        if (n > 1 && data.polygon[0, 0] == data.polygon[n - 1, 0] && data.polygon[0, 1] == data.polygon[n - 1, 1])
+        {
+            n--; // 닫혀있다면 마지막 점은 계산에서 제외
+        }
+
+        double totalLon = 0, totalLat = 0;
         for (int i = 0; i < n; i++)
         {
-            lon += pts[i][0]; // 경도
-            lat += pts[i][1]; // 위도
+            totalLon += data.polygon[i, 0]; // 경도 합계
+            totalLat += data.polygon[i, 1]; // 위도 합계
         }
-        return (lon / n, lat / n);
+
+        return (totalLon / n, totalLat / n);
     }
 
-
 }
-
-/*
- 다른곳에서 쓸 때
-해당 클래스에 추가
-WeatherGridItem clickedGrid = hit.collider.GetComponent<WeatherGridItem>();
-*/

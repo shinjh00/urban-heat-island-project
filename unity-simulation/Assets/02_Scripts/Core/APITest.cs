@@ -148,7 +148,7 @@ public class api_test : MonoBehaviour
             IsGeoJsonLoaded = true;
             Debug.Log($" [1/3 완료] GeoJSON 기상 격자 {CachedWeatherGrids.Count}개 보관 완료.");
             //  [연동 추가 코드] 다운로드가 끝나는 즉시 지면에 오브젝트를 그립니다!
-            FindFirstObjectByType<WeatherGridVisualizer>().VisualizeWeatherGrids();
+            //FindFirstObjectByType<WeatherGridVisualizer>().VisualizeWeatherGrids();
         }
         catch (Exception e)
         {

@@ -1,12 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.UI;
-using static UnityEditor.U2D.ScriptablePacker;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -14,7 +11,7 @@ public class NetworkManager : MonoBehaviour
 
     [Header("플라스크 서버 설정")]
     [SerializeField]
-    private string apiServerIP = "127.0.0.1";
+    private string apiServerIP = "localhost";
     [SerializeField]
     private string apiTargetTime;
 
@@ -23,13 +20,14 @@ public class NetworkManager : MonoBehaviour
     public Material mapoDirectMaterial;
     [Tooltip("씬에 배치된 Decal Projector 컴포넌트를 연결")]
     public DecalProjector mapoDecalProjector;
-    // 새로 추가된 PNG 데칼 이미지 텍스처 저장소 (Cesium 투사 연출용 등으로 사용)
-    public Texture2D CachedDecalTexture { get; private set; }
 
 
-    #region ``[전역 마스터 객체 저장소] 다른 파일에서 바로 조회해서 쓰는 서랍장``
+    #region ``[전역 마스터 객체 저장소] 다른 파일에서 바로 조회해서 쓰는 변수들``
     // grid.geojson 격자 데이터 저장소
     public List<ZoneData> zoneList { get; private set; } = new List<ZoneData>();
+
+    // 새로 추가된 PNG 데칼 이미지 텍스처 저장소 (Cesium 투사 연출용 등으로 사용)
+    public Texture2D CachedDecalTexture { get; private set; }
 
     // 각 데이터가 완벽하게 들어왔는지 확인하는 개별 상태 플래그
     public bool IsGeoJsonLoaded { get; private set; } = false;
@@ -52,7 +50,7 @@ public class NetworkManager : MonoBehaviour
 
     private void Start()
     {
-        //StartCoroutine(FetchPngDecalImage());
+        //StartCoroutine(FetchGeoJsonData());
     }
 
     private void OnDisable()
@@ -63,6 +61,7 @@ public class NetworkManager : MonoBehaviour
 
 
     #region ``시각화 기능``
+    // ControlPanel.cs에서 시각화 시작 버튼 클릭 시 호출됨
     public void RefreshDecalData()
     {
         StartCoroutine(FetchPngDecalImage());
@@ -151,10 +150,11 @@ public class NetworkManager : MonoBehaviour
     #endregion
 
 
-    #region ``격자 정보 받아와서 rawJsonText로 반환``
-    public IEnumerator FetchZoneFromApi(Action<string> onResult)
+    #region ``grid.geojson 받아와서 rawJsonText로 반환``
+    public IEnumerator FetchGeoJsonData(Action<string> onResult)
     {
-        string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm={apiTargetTime}";
+        //string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm={apiTargetTime}";
+        string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm=202511151400";
         UnityWebRequest request = UnityWebRequest.Get(requestUrl);
 
         request.timeout = 30;
@@ -167,10 +167,12 @@ public class NetworkManager : MonoBehaviour
             if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError($"[서버 에러] 로드 실패: {request.error}");
+                IsGeoJsonLoaded = false; // 실패 시 플래그 false 유지
                 onResult?.Invoke(null);
             }
             else
             {
+                IsGeoJsonLoaded = true; // 성공 시 true 설정
                 onResult?.Invoke(request.downloadHandler.text);
             }
         }
@@ -183,11 +185,5 @@ public class NetworkManager : MonoBehaviour
         }
     }
     #endregion
-
-
-
-
-
-
 
 }
