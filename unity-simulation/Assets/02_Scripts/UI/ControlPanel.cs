@@ -21,11 +21,9 @@ public class ControlPanel : MonoBehaviour
     [SerializeField]
     private Button visualizationStartButton;
 
-    private List<string> dateOptions = new List<string>();
-
     [Header("옥상 녹화 시뮬레이션 탭")]
     [SerializeField]
-    private Button selectBuildingButton;
+    private Button selectGreeneryZoneButton;
     [SerializeField]
     private Button startGreeneryButton;
 
@@ -34,6 +32,8 @@ public class ControlPanel : MonoBehaviour
     private Button installShadeButton;
 
 
+    // 드롭다운에 들어갈 옵션 리스트
+    private List<string> dateOptions = new List<string>();
 
 
     void Start()
@@ -50,6 +50,18 @@ public class ControlPanel : MonoBehaviour
 
         // 드롭다운 아이템 생성 및 초기화
         InitDateDropdown();
+
+        // 시각화 시작 버튼 리스너 등록
+        if (visualizationStartButton != null)
+        {
+            visualizationStartButton.onClick.AddListener(OnVisualizationStartButtonClicked);
+        }
+
+        // 옥상 녹화 시뮬레이션 시작 버튼 리스너 등록
+        if (selectGreeneryZoneButton != null)
+        {
+            selectGreeneryZoneButton.onClick.AddListener(OnSelectGreeneryZoneButtonClicked);
+        }
     }
 
     private void SwitchTab(int tabIndex)
@@ -73,6 +85,7 @@ public class ControlPanel : MonoBehaviour
         }
     }
 
+    // 실행 시 시각화 드롭다운 초기화
     private void InitDateDropdown()
     {
         if (dateDropdown == null)
@@ -94,13 +107,40 @@ public class ControlPanel : MonoBehaviour
 
         // 생성한 리스트를 드롭다운에 넣기
         dateDropdown.AddOptions(dateOptions);
+        dateDropdown.value = 0;  // 0번 인덱스를 default로
+        dateDropdown.RefreshShownValue();  // 화면 갱신
+
+        // 드롭다운 리스너 연결
+        dateDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
     }
 
     // 드롭다운 아이템을 선택했을 때 실행될 기능
-    // UIManager에 보내서 다른 스크립트에서 UIManager 싱글톤으로 접근할수있게?
     private void OnDropdownValueChanged(int index)
     {
-        // dateDropdown.options[index].text 를 하면 유저가 선택한 "2026년 06월" 같은 글자를 가져올 수 있습니다.
-        Debug.Log("선택된 날짜: " + dateDropdown.options[index].text);
+        // dateDropdown.options[index].text로 선택한 "2026년 06월" 글자를 가져옴
+        string originalText = dateDropdown.options[index].text;
+
+        string yearText = originalText.Substring(0, 4);     // 0번째부터 4개
+        string monthText = originalText.Substring(6, 2);    // 6번째부터 2개
+
+        string selectedDateText = yearText + monthText + 151400;
+        Debug.Log($"[ControlPanel] 선택된 날짜: {selectedDateText}");
+
+        UIManager.Instance.SetSelectedDate(selectedDateText);
+    }
+
+    // 시각화 시작 버튼을 눌렀을 때 실행될 함수
+    private void OnVisualizationStartButtonClicked()
+    {
+        Debug.Log("[ControlPanel] 시각화 시작 버튼 클릭. 서버에 데이터 요청을 보냅니다.");
+
+        // NetworkManager에게 현재 선택된 날짜로 새로고침하도록 요청
+        NetworkManager.Instance.RefreshDecalData();
+    }
+
+    // 옥상 녹화 구역 선택 버튼을 눌렀을 때 실행될 함수
+    private void OnSelectGreeneryZoneButtonClicked()
+    {
+        // 위에 함수 참고해서 구현
     }
 }
