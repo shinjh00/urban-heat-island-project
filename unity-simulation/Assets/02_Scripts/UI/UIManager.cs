@@ -25,6 +25,8 @@ public class UIManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // 실행 시 EventSystem 찾기 (없으면 할당)
     }
 
     #region ``Building Info Panel 제어``
