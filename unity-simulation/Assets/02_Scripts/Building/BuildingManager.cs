@@ -357,7 +357,8 @@ public class BuildingManager : MonoBehaviour
         return obj;
     }
 
-    #region ``BuildingSelector.cs 관련 함수``
+
+    #region ``BuildingSelector 관련 함수``
     // 건물 선택 이벤트 실행
     public void SelectBuilding(BuildingInfo info)
     {
@@ -379,6 +380,5 @@ public class BuildingManager : MonoBehaviour
         OnBuildingDeselected?.Invoke();
     }
     #endregion
-
 
 }

@@ -15,7 +15,7 @@ class KmaWeatherService(BaseWeatherService):
     def __init__(self):
         super().__init__()
         self.api_url = "https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-sfc_obs_nc_api"
-        self.auth_key = "UqDMYIRqQVGgzGCEapFR6w"
+        self.auth_key = "ADb5ZbflRq22-WW35Satdw"
         self.nc_path = "../data/sfc_grid_latlon.nc"
 
     
