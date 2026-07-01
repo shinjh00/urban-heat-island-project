@@ -47,7 +47,9 @@ public class GreeneryCalculator : MonoBehaviour
         // 2. 루프를 돌며 각 빌딩별 개별 점수 및 반경 연산 진행
         foreach (var bSimData in request.targetZoneBuildings)
         {
+            // 점수에 필요한 건물당 인접 건물 수 계산
             int radiusCount = CalcRadiusBuildingCount(bSimData, request.allBuildings);
+            // 건물별 Greenery Score 점수 계산 
             float score = CalcGreeneryScore(radiusCount, bSimData.areaSize, bSimData.height);
 
             // 전달용 사전에 ID 기반으로 결과 저장
@@ -55,9 +57,17 @@ public class GreeneryCalculator : MonoBehaviour
             result.buildingScores[bSimData.buildingID] = score;
         }
 
-        // 3. [이벤트 발행] 연산이 완료된 최종 바구니를 전방으로 발사합니다.
+        // 3. 점수 기반 랭킹 산출 + 누적 면적 기준 녹화 상태(GreeneryPriority / GreeneryTop10) 판정
+        result.rankedBuildings = CalcGreeneryRanking(
+            request.targetZoneBuildings,
+            result.buildingScores,
+            result.expectedGreeneryArea
+        );
+
+        // 4. [이벤트 발행] 연산이 완료된 최종 바구니를 전방으로 발사합니다.
         OnCalculationCompleted?.Invoke(result);
     }
+
 
     // 계산 함수 모음
 
@@ -140,10 +150,6 @@ public class GreeneryCalculator : MonoBehaviour
         return expectedTempEffect;
     }
 
-
-
-
-
     /// <summary>
     /// 건물별 중앙값을 기준으로 거리 확인 위해서 하버사인 공식을 이용해 위도/경도 좌표 간의 직선 거리(미터)를 계산합니다.
     /// </summary>
@@ -167,7 +173,74 @@ public class GreeneryCalculator : MonoBehaviour
         return (Math.PI / 180) * val;
     }
 
+    /// <summary>
+    /// 녹화 점수를 기준으로 순위(greeneryRank)를 매기고,
+    /// 순위가 높은 순서대로 areaSize를 누적하여 목표 녹화 면적(expectedGreeneryArea)에
+    /// 도달할 때까지 "GreeneryPriority" 상태를 부여합니다.
+    /// 마지막으로 순위 1~10위는 "GreeneryTop10"으로 재지정합니다.
+    /// </summary>
+    public List<SimulationController.GreeneryRankingBuildings> CalcGreeneryRanking(
+        List<SimulationController.SpawnedAllBuildings> targetZoneBuildings,
+        Dictionary<string, float> buildingScores,
+        float expectedGreeneryArea)
+    {
+        // 1. GreeneryRankingBuildings 리스트 조립 (기본 상태: Normal)
+        List<SimulationController.GreeneryRankingBuildings> zoneBuildings = new List<SimulationController.GreeneryRankingBuildings>();
 
+        foreach (var bSimData in targetZoneBuildings)
+        {
+            SimulationController.GreeneryRankingBuildings gData = new SimulationController.GreeneryRankingBuildings();
+            gData.buildingID = bSimData.buildingID;
+            gData.areaSize = bSimData.areaSize;
+
+            if (buildingScores.ContainsKey(bSimData.buildingID))
+                gData.greeneryScore = buildingScores[bSimData.buildingID];
+
+            gData.greeneryStatus = "Normal";
+            gData.greeneryRank = 0;
+
+            zoneBuildings.Add(gData);
+        }
+
+        // 2. 점수 내림차순 정렬 후 순위(greeneryRank) 부여
+        List<SimulationController.GreeneryRankingBuildings> rankedZoneBuildings =
+            zoneBuildings.OrderByDescending(b => b.greeneryScore).ToList();
+
+        for (int i = 0; i < rankedZoneBuildings.Count; i++)
+        {
+            SimulationController.GreeneryRankingBuildings updatedData = rankedZoneBuildings[i];
+            updatedData.greeneryRank = i + 1;
+            rankedZoneBuildings[i] = updatedData;
+        }
+
+        // 3. 순위 순서대로 areaSize를 누적하며 목표 녹화 면적(expectedGreeneryArea)에
+        //    도달할 때까지 GreeneryPriority 상태 부여
+        float accumulatedArea = 0f;
+
+        for (int i = 0; i < rankedZoneBuildings.Count; i++)
+        {
+            if (accumulatedArea >= expectedGreeneryArea) break;
+
+            SimulationController.GreeneryRankingBuildings updatedData = rankedZoneBuildings[i];
+            accumulatedArea += updatedData.areaSize;
+            updatedData.greeneryStatus = "GreeneryPriority";
+            rankedZoneBuildings[i] = updatedData;
+        }
+
+        // 4. 순위 1~10위는 GreeneryPriority 대신 GreeneryTop10으로 재지정
+        for (int i = 0; i < rankedZoneBuildings.Count; i++)
+        {
+            SimulationController.GreeneryRankingBuildings updatedData = rankedZoneBuildings[i];
+
+            if (updatedData.greeneryRank >= 1 && updatedData.greeneryRank <= 10)
+            {
+                updatedData.greeneryStatus = "GreeneryTop10";
+                rankedZoneBuildings[i] = updatedData;
+            }
+        }
+
+        return rankedZoneBuildings;
+    }
 
 
 }

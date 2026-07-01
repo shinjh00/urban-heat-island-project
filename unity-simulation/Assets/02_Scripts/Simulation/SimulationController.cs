@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -53,10 +54,13 @@ public class SimulationController : MonoBehaviour
         public float expectedTempEffect;
         public Dictionary<string, float> buildingScores; // Key: buildingID, Value: score
         public Dictionary<string, int> radiusCounts;     // Key: buildingID, Value: count
+        public List<GreeneryRankingBuildings> rankedBuildings; // 랭킹/상태까지 계산된 최종 리스트
+
     }
 
-    // [추가] Calculaotr에게 연산을 요청하는 이벤트
+    // Calculaotr에게 연산을 요청하는 이벤트
     public static event Action<CalculationRequestData> OnCalculationRequested;
+    public static event Action OnResultDataUpdated;
 
     // 녹화 점수 계산에 필요한 변수들
     [Header("Simulation Settings")]
@@ -72,9 +76,19 @@ public class SimulationController : MonoBehaviour
     public string currentTargetZoneID = "0";
     public double gridOriginalTemp = 0.0; // [추가] 선택된 격자의 기존 온도를 저장할 변수
 
+    // 모든 Building 스폰이후 데이터 수집 시작
+    [Header("Simulation State")]
+    public bool isBuildingDataLoaded = false;    // 데이터 수집(스폰) 완료 여부
+    private int lastCheckCount = -1;             // 직전 프레임에 확인한 건물 수
+    private Coroutine checkCompleteCoroutine;    // 스폰 완료 감지용 코루틴 저장소
+
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) 
+        {
+            Debug.LogWarning($"[SimulationController] 중복된 오브젝트가 발견되어 {gameObject.name}을 파괴합니다.");
+            Destroy(gameObject); return; 
+        }
         Instance = this;
     }
 
@@ -119,8 +133,17 @@ public class SimulationController : MonoBehaviour
         // GeoJSON 내부 속성(Properties) 명칭에 따라 "zone_id", "zoneID", "zone" 등으로 매핑 조절 필요
         // BuildingData 내부에 구역 ID가 string 형태로 보관되어 있다고 가정합니다.
 
-        //newBuilding.zoneID = data.zoneID;
-        // 지혜님 구현 이후에 수정하기
+        // BuildingInfo 컴포넌트에서 zoneId를 가져와 string으로 변환하여 매핑
+        // 보통 쓰고있는 zoneID가 string이기 때문에, BuildingInfo에는 int 라서 string으로 변환해줌
+        BuildingInfo info = buildingObj.GetComponent<BuildingInfo>();
+        if (info != null)
+        {
+            newBuilding.zoneID = info.zoneId.ToString();
+        }
+        else
+        {
+            Debug.LogWarning($"[SimulationController] {data.id} 건물에서 BuildingInfo 컴포넌트를 찾을 수 없습니다.");
+        }
 
         newBuilding.areaSize = (float)data.areaSize; // 원시 데이터가 double일 경우 캐스팅
         newBuilding.height = (float)data.height;
@@ -134,7 +157,8 @@ public class SimulationController : MonoBehaviour
         spawnedAllBuildings.Add(newBuilding);
 
         // 필요 시 실시간 디버그 로그 활성화
-        Debug.Log($"[SimulationController] 새 건물 수집 완료: {newBuilding.buildingID} (구역: {newBuilding.zoneID})");
+        Debug.Log($"[SimulationController] 새 건물 수집! ID: {newBuilding.buildingID} " +
+            $"| 현재 수집된 건물: {spawnedAllBuildings.Count}개");
     }
 
     /// <summary>
@@ -154,9 +178,21 @@ public class SimulationController : MonoBehaviour
         currentTargetZoneID = zoneID;
         gridOriginalTemp = zoneTemp;
 
+        Debug.Log($"[SimulationController] [{currentTargetZoneID}] 그리드 정보를 가져옵니다.");
+
         if (spawnedAllBuildings == null || spawnedAllBuildings.Count == 0)
         {
             Debug.LogWarning("[SimulationController] 원본 데이터가 없습니다.");
+            return;
+        }
+
+        // 아직 스폰(수집) 완료 상태가 아니라면 계산을 유보하고, 감지 코루틴을 돌립니다.
+        if (!isBuildingDataLoaded)
+        {
+            if (checkCompleteCoroutine != null)
+                StopCoroutine(checkCompleteCoroutine);
+
+            checkCompleteCoroutine = StartCoroutine(CheckSpawnCompletionLoop());
             return;
         }
 
@@ -176,6 +212,32 @@ public class SimulationController : MonoBehaviour
 
     }
 
+    // 실시간으로 스폰되는 건물 개수를 감시하여 완료를 판단하는 코루틴
+    private IEnumerator CheckSpawnCompletionLoop()
+    {
+        Debug.Log("[SimulationController] 건물 스폰 상태 감지를 시작합니다...");
+
+        while (!isBuildingDataLoaded)
+        {
+            // 현재까지 리스트에 쌓인 건물 수 기록
+            lastCheckCount = spawnedAllBuildings.Count;
+
+            // 0.5초 동안 대기하면서 BuildingManager가 스폰을 계속 하는지 지켜봅니다.
+            yield return new WaitForSeconds(0.5f);
+
+            // 0.5초가 지났는데도 전체 건물 개수(Count)에 변화가 없다면 스폰 루프가 끝난 것입니다.
+            if (spawnedAllBuildings.Count > 0 && spawnedAllBuildings.Count == lastCheckCount)
+            {
+                isBuildingDataLoaded = true; // 완료 플래그 켜기
+                Debug.Log($"[SimulationController] 더 이상 추가 스폰 없음 감지! 총 {spawnedAllBuildings.Count}개 수집 완료.");
+
+                // 데이터 수집이 완전히 끝났으니, 멈췄던 연산을 다시 호출합니다.
+                ProcessBuildingGreeneryRankings(currentTargetZoneID, gridOriginalTemp);
+                yield break;
+            }
+        }
+    }
+
     //[이벤트 콜백] GreeneryCalculator가 연산을 완료하면 자동으로 호출되는 구독 함수
     private void OnReceiveCalculationResult(CalculationResultData result)
     {
@@ -186,40 +248,22 @@ public class SimulationController : MonoBehaviour
         greeneryAfterTemp = gridOriginalTemp - expectedTempEffect;
 
         Debug.Log($"[{currentTargetZoneID}] 구역 결과 수신 | 기존: {gridOriginalTemp}°C | 감소: {expectedTempEffect}°C | 예상: {greeneryAfterTemp}°C");
+        
+        // 4. Calculator가 랭킹/상태 계산까지 완료한 리스트를 그대로 사용
+        greeneryRankingBuildings = result.rankedBuildings;
 
-        // 4. 돌려받은 점수 사전을 기반으로 등수 정렬 및 랭킹 구조체 조립
-        List<GreeneryRankingBuildings> zoneBuildings = new List<GreeneryRankingBuildings>();
-        var targetZoneBuildings = spawnedAllBuildings.Where(b => b.zoneID == currentTargetZoneID).ToList();
+        // 녹화 적용된(=Priority 이상) 건물 수 카운트
+        greeneryBuildingcount = greeneryRankingBuildings
+            .Count(b => b.greeneryStatus == "GreeneryPriority" || b.greeneryStatus == "GreeneryTop10");
 
-        foreach (var bSimData in targetZoneBuildings)
-        {
-            GreeneryRankingBuildings gData = new GreeneryRankingBuildings();
-            gData.buildingID = bSimData.buildingID;
-            gData.areaSize = bSimData.areaSize;
 
-            // 사전에 저장되어 넘어온 연산 결과 매핑
-            if (result.buildingScores.ContainsKey(bSimData.buildingID))
-                gData.greeneryScore = result.buildingScores[bSimData.buildingID];
 
-            gData.greeneryStatus = "Normal";
-            gData.greeneryRank = 0;
+        Debug.Log($"[SimulationController] {currentTargetZoneID}번 구역 랭킹 정렬 완료 " +
+            $"(총 {greeneryRankingBuildings.Count}개, 녹화 적용 {greeneryBuildingcount}개))");
 
-            zoneBuildings.Add(gData);
-        }
+        //데이터 세팅이 끝난 후, 결과 패널(UI)에 전달
+        OnResultDataUpdated?.Invoke();
 
-        // 5. 정렬 및 우선순위 적용
-        List<GreeneryRankingBuildings> rankedZoneBuildings = zoneBuildings.OrderByDescending(b => b.greeneryScore).ToList();
-
-        for (int i = 0; i < rankedZoneBuildings.Count; i++)
-        {
-            GreeneryRankingBuildings updatedData = rankedZoneBuildings[i];
-            updatedData.greeneryRank = i + 1;
-            updatedData.greeneryStatus = (i == 0) ? "GreeneryPriority" : "Normal";
-            rankedZoneBuildings[i] = updatedData;
-        }
-
-        greeneryRankingBuildings = rankedZoneBuildings;
-        Debug.Log($"[SimulationController] {currentTargetZoneID}번 구역 랭킹 정렬 완료 (총 {greeneryRankingBuildings.Count}개)");
     }
 
 
@@ -282,43 +326,6 @@ public class SimulationController : MonoBehaviour
     6. 시뮬레이션 종료 메세지(왼쪽 하단)
         1. debug.log(시뮬레이션이 종료되었습니다)
      */
-
-
-
-    // 건물 정보 가져오기
-    public void BuildingInfoLoad()
-{
-    // 면적, 높이 가져오기
-}
-
-// 그리드 정보 가져오기
-public void GridInfoLoad()
-{
-    // 그리드 좌표, 그리드 온도 가져오기
-}
-
-// 녹화 우선순위 순위, 점수를 건물 데이터에 할당
-public void PutGreeneryScore()
-{
-    // 계산식을 통해서 얻은 순위, 점수를
-    // 건물리스트를 돌면서 건물에 할당
-}
-
-
-// 건물 선택했을 때 그리드 내에 있는 모든 건물을 건물 리스트에 담기
-// BuildingSelector에 있는 함수 호출
-
-
-// 결과 패널에 보낼 데이터들 모아서 전달 (필요 시 계산)
-public void SendResultData()
-{
-    // 설정했던 목표 녹화율
-    // 녹화 적용된 건물 수
-    // 녹화 적용 면적
-    // 예상 감소 온도 (논문에서 가져온 기준이 되는 온도)
-    // 녹화 전 기존 온도
-    // 녹화 후 예상 감소 온도 (녹화 전 기존 온도 - 예상 감소 온도)
-}
 
 
 
