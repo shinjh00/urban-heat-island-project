@@ -142,6 +142,6 @@ public class ControlPanel : MonoBehaviour
     private void OnSelectGreeneryZoneButtonClicked()
     {
         Debug.Log("[ControlPanel] 구역 선택 버튼 클릭");
-        ZoneManager.Instance.RequestGridShow();
+        ZoneManager.Instance.EnableZoneSelection();
     }
 }

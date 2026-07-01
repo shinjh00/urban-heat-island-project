@@ -48,11 +48,6 @@ public class NetworkManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
-    {
-        //StartCoroutine(FetchGeoJsonData());
-    }
-
     private void OnDisable()
     {
         // 스크립트가 비활성화되거나 씬이 멈출 때 통신을 모두 정리
@@ -91,7 +86,7 @@ public class NetworkManager : MonoBehaviour
                     {
                         CachedDecalTexture = texture;
                         IsPngLoaded = true;
-                        Debug.Log($"[완료] PNG 다운로드 성공: ({texture.width}x{texture.height})");
+                        Debug.Log($"[NetworkManager] 히트맵 PNG 다운로드 성공: ({texture.width}x{texture.height})");
 
                         // 다운로드 성공 시 Mapo_Material에 새로 받은 텍스처 반영
                         ApplyTextureToSceneDecal(texture);
@@ -101,7 +96,7 @@ public class NetworkManager : MonoBehaviour
                 else
                 {
                     retryCount++;
-                    Debug.LogWarning($"[다운로드 시도 {retryCount}/{maxRetries} 실패]: {request.error}. {(retryCount < maxRetries ? "2초 후 재시도..." : "")}");
+                    Debug.LogWarning($"[NetworkManager 경고] 다운로드 시도 {retryCount}/{maxRetries} 실패]: {request.error}. {(retryCount < maxRetries ? "2초 후 재시도..." : "")}");
                     if (retryCount < maxRetries) yield return new WaitForSeconds(2.0f); // 2초 대기 후 재시도
                 }
             }
@@ -109,7 +104,7 @@ public class NetworkManager : MonoBehaviour
 
         if (!isSuccess)
         {
-            Debug.LogError("[최종 에러] PNG 데칼 이미지 다운로드 실패");
+            Debug.LogError("[NetworkManager 에러] PNG 데칼 이미지 다운로드 실패");
         }
     }
 
@@ -118,7 +113,7 @@ public class NetworkManager : MonoBehaviour
     {
         if (newTexture == null)
         {
-            Debug.LogError("[Decal 에러] 전달된 텍스처 데이터가 Null입니다.");
+            Debug.LogError("[NetworkManager 에러] 전달된 히트맵 텍스처(PNG) 데이터가 Null입니다.");
             return;
         }
 
@@ -140,11 +135,11 @@ public class NetworkManager : MonoBehaviour
                 mapoDecalProjector.enabled = true;
             }
 
-            Debug.Log("[Decal] 원본 머테리얼(Base_Map) 텍스처 교체 및 새로고침 성공");
+            Debug.Log("[NetworkManager] 히트맵 텍스처 교체 및 새로고침 성공");
         }
         else
         {
-            Debug.LogError("[Decal 에러] NetworkManager 인스펙터에 MapoDirectMaterial이 등록되지 않았습니다.");
+            Debug.LogError("[NetworkManager 에러] NetworkManager 인스펙터에 MapoDirectMaterial이 등록되지 않았습니다.");
         }
     }
     #endregion
@@ -181,7 +176,7 @@ public class NetworkManager : MonoBehaviour
             // 에러가 나든 성공하든 통신 종료 후 리소스를 즉시 반납하여
             // 메모리 누수 방지 및 재사용 준비 (다음 통신 시 충돌 방지)
             request.Dispose();
-            Debug.Log("[NetworkManager] 리소스 해제 완료");
+            Debug.Log("[NetworkManager] 통신 종료 후 리소스 해제 완료");
         }
     }
     #endregion

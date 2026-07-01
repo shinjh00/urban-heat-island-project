@@ -1,22 +1,27 @@
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 public class ZoneManager : MonoBehaviour
 {
     public static ZoneManager Instance { get; private set; }
 
+    // 컴포넌트를 직접 참조 (Awake에서 미리 찾아 놓음)
+    public ZoneGenerator zoneGenerator { get; private set; }
+    public ZoneRenderer zoneRenderer { get; private set; }
+    public ZoneSelector zoneSelector { get; private set; }
+
     // 전체 구역 리스트 (런타임 시 Start에서 미리 담아놓고 이후엔 접근해서 사용만 하도록 캐싱)
-    public List<ZoneData> zoneList = new List<ZoneData>();
+    public List<ZoneData> ZoneList = new List<ZoneData>();
 
     public ZoneData selectedZone { get; private set; }  // 현재 선택된 zone
 
     // 구역 선택 시 발생 이벤트
     public static event Action OnRequestGridShow;
-
-
 
 
     void Awake()
@@ -27,14 +32,31 @@ public class ZoneManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // 같은 오브젝트에 붙어있는 스크립트들을 참조 (없으면 생성)
+        zoneGenerator = GetComponent<ZoneGenerator>();
+        zoneRenderer = GetComponent<ZoneRenderer>();
+        zoneSelector = GetComponent<ZoneSelector>();
+        if (zoneGenerator == null) zoneGenerator = gameObject.AddComponent<ZoneGenerator>();
+        if (zoneRenderer == null) zoneRenderer = gameObject.AddComponent<ZoneRenderer>();
+        if (zoneRenderer == null) zoneSelector = gameObject.AddComponent<ZoneSelector>();
+    }
+
+    void OnEnable()
+    {
+        ZoneSelector.OnZoneSelected += HandleZoneSelected;
+    }
+
+    void OnDisable()
+    {
+        ZoneSelector.OnZoneSelected -= HandleZoneSelected;
     }
 
     private async void Start()
     {
-        // 런타임 시작 시 ZoneData 자동 캐싱
+        // 런타임 시작 시 ZoneData 미리 캐싱
         await LoadAndCacheZoneData();
     }
-
 
     #region ``런타임 시작 시 연동된 API를 통해 ZoneData 받아와서 캐싱``
     public async Task LoadAndCacheZoneData()
@@ -49,8 +71,6 @@ public class ZoneManager : MonoBehaviour
         await FetchZoneData();
     }
 
-    // 테스트용 코드
-    // SimulationController에서 사용
     public async Task FetchZoneData()
     {
         // NetworkManager의 FetchZoneFromApi() 코루틴 결과를 Task로 변환하기 위해 필요
@@ -68,7 +88,7 @@ public class ZoneManager : MonoBehaviour
 
         if (string.IsNullOrEmpty(rawJsonText))
         {
-            Debug.LogError("[ZoneManager] 서버로부터 받은 데이터가 없습니다.");
+            Debug.LogError("[ZoneManager 에러] 서버로부터 받은 데이터가 없습니다.");
             return;
         }
 
@@ -87,55 +107,36 @@ public class ZoneManager : MonoBehaviour
         });
 
         // Data 추출 함수를 통해 객체화
-        zoneList = parser.ExtractZoneData(features);
-
-        // 로드 후 테스트 로그 출력 (재구성 완료 후 지우기)
-        if (zoneList != null)
-        {
-            Debug.Log($"[ZoneManager] 캐싱 완료: {zoneList.Count}개 Zone");
-            foreach (var zone in zoneList)
-            {
-                Debug.Log($"캐싱된 Zone: {zone.zoneId}, Temp: {zone.temperature}, 좌표수: {zone.polygon.GetLength(0)}");
-            }
-        }
+        ZoneList = parser.ExtractZoneData(features);
+        Debug.Log($"[ZoneManager] ZoneData 캐싱 완료: {ZoneList.Count}개");
     }
     #endregion
 
 
-    #region ``BuildingSelector 관련 함수``
-    // Zone 선택 이벤트 실행
-    //public void SelectZone(ZoneData data)
-    //{
-    //    if (selectedZone != null)
-    //    {
-    //        OnZoneDeselected?.Invoke();  // 기존 선택 구역 있으면 해제
-    //    }
-    //    selectedZone = data;
-    //    OnZoneSelected?.Invoke(data);
-    //}
-
-    //// Zone 선택 해제 이벤트 실행
-    //public void DeselectZone()
-    //{
-    //    if (selectedZone == null)
-    //        return;
-
-    //    selectedZone = null;
-    //    OnZoneDeselected?.Invoke();
-    //}
-    #endregion
-
-    public void RequestGridShow()
+    // '구역 선택' 버튼 눌렀을 때 호출됨
+    public void EnableZoneSelection()
     {
         // ZoneData가 캐싱되어 있는지 확인
         if (!NetworkManager.Instance.IsGeoJsonLoaded)
         {
-            Debug.LogWarning("[ZoneManager] ZoneData 데이터가 로드되지 않았습니다. 데이터를 먼저 로드합니다.");
+            Debug.LogWarning("[ZoneManager 경고] ZoneData 데이터가 로드되지 않았습니다. 데이터를 먼저 로드합니다.");
             return;
         }
 
         // ZoneData가 캐싱되어 있다면 구역 전체 그리드로 지형에 표시
-        Debug.Log("[ZoneManager] RequestGridShow 시작");
-        OnRequestGridShow?.Invoke();
+        zoneGenerator.VisualizeGrids();
+        zoneGenerator.ShowGrids();
+        Debug.Log("[ZoneManager] 그리드 표시 완료");
     }
+
+    // 그리드 하나 선택했을 때 실행됨
+    private void HandleZoneSelected(ZoneItem selectedItem)
+    {
+        // 1. 주변 그리드 숨기기
+        zoneGenerator.HideOtherGrids(selectedItem);
+
+        // 2. 선택된 그리드 Blink 시작
+        StartCoroutine(zoneGenerator.BlinkAndLoad(selectedItem));
+    }
+
 }
