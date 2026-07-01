@@ -72,6 +72,7 @@ public class DataParser
 
 
     #region ``각 Data 추출 함수``
+    // BuildingData 파싱 및 객체화
     public BuildingData ExtractBuildingData(JObject feat)
     {
         try
@@ -159,7 +160,7 @@ public class DataParser
         catch { return null; }
     }
 
-    //
+    // ZoneData 파싱 및 객체화
     public List<ZoneData> ExtractZoneData(List<JObject> features)
     {
         List<ZoneData> zoneList = new List<ZoneData>();
@@ -176,15 +177,15 @@ public class DataParser
 
                 // Polygon 좌표 추출 (Vector2 배열로 변환)
                 JArray grid = (JArray)geom["coordinates"][0];
+                int pointCount = grid.Count;
                 if (grid == null || grid.Count < 3) return null;
 
-                List<Vector2> gridList = new List<Vector2>();
-
-                foreach (JArray point in grid)
+                // polygon 2차원 배열로 생성
+                double[,] polygonArray = new double[pointCount, 2];
+                for (int i = 0; i < pointCount; i++)
                 {
-                    // GeoJSON은 경도(x), 위도(y) 순서
-                    // point[0] - 경도, point[1] - 위도
-                    gridList.Add(new Vector2((float)point[0], (float)point[1]));
+                    polygonArray[i, 0] = (double)grid[i][0]; // 경도
+                    polygonArray[i, 1] = (double)grid[i][1]; // 위도
                 }
 
                 // ZoneData 객체 생성
@@ -193,11 +194,11 @@ public class DataParser
                     // zoneId가 GeoJSON에 있다면 가져오고, 없으면 임의 생성
                     zoneId = props["zoneId"]?.ToString() ?? $"ZONE_{index}",
                     temperature = (float)(props["value"] ?? 0.0f),
-                    polygon = gridList.ToArray()
+                    polygon = polygonArray
                 };
 
                 zoneList.Add(zone);
-                index++;  // 나중에 삭제
+                index++;
             }
             catch (Exception e)
             {

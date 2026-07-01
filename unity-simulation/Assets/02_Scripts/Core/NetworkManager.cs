@@ -1,12 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.UI;
-using static UnityEditor.U2D.ScriptablePacker;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -14,7 +11,7 @@ public class NetworkManager : MonoBehaviour
 
     [Header("플라스크 서버 설정")]
     [SerializeField]
-    private string apiServerIP = "127.0.0.1";
+    private string apiServerIP = "localhost";
     [SerializeField]
     private string apiTargetTime;
 
@@ -23,13 +20,14 @@ public class NetworkManager : MonoBehaviour
     public Material mapoDirectMaterial;
     [Tooltip("씬에 배치된 Decal Projector 컴포넌트를 연결")]
     public DecalProjector mapoDecalProjector;
-    // 새로 추가된 PNG 데칼 이미지 텍스처 저장소 (Cesium 투사 연출용 등으로 사용)
-    public Texture2D CachedDecalTexture { get; private set; }
 
 
-    #region ``[전역 마스터 객체 저장소] 다른 파일에서 바로 조회해서 쓰는 서랍장``
+    #region ``[전역 마스터 객체 저장소] 다른 파일에서 바로 조회해서 쓰는 변수들``
     // grid.geojson 격자 데이터 저장소
     public List<ZoneData> zoneList { get; private set; } = new List<ZoneData>();
+
+    // 새로 추가된 PNG 데칼 이미지 텍스처 저장소 (Cesium 투사 연출용 등으로 사용)
+    public Texture2D CachedDecalTexture { get; private set; }
 
     // 각 데이터가 완벽하게 들어왔는지 확인하는 개별 상태 플래그
     public bool IsGeoJsonLoaded { get; private set; } = false;
@@ -50,11 +48,6 @@ public class NetworkManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
-    {
-        //StartCoroutine(FetchPngDecalImage());
-    }
-
     private void OnDisable()
     {
         // 스크립트가 비활성화되거나 씬이 멈출 때 통신을 모두 정리
@@ -63,6 +56,7 @@ public class NetworkManager : MonoBehaviour
 
 
     #region ``시각화 기능``
+    // ControlPanel.cs에서 시각화 시작 버튼 클릭 시 호출됨
     public void RefreshDecalData()
     {
         StartCoroutine(FetchPngDecalImage());
@@ -92,7 +86,7 @@ public class NetworkManager : MonoBehaviour
                     {
                         CachedDecalTexture = texture;
                         IsPngLoaded = true;
-                        Debug.Log($"[완료] PNG 다운로드 성공: ({texture.width}x{texture.height})");
+                        Debug.Log($"[NetworkManager] 히트맵 PNG 다운로드 성공: ({texture.width}x{texture.height})");
 
                         // 다운로드 성공 시 Mapo_Material에 새로 받은 텍스처 반영
                         ApplyTextureToSceneDecal(texture);
@@ -102,7 +96,7 @@ public class NetworkManager : MonoBehaviour
                 else
                 {
                     retryCount++;
-                    Debug.LogWarning($"[다운로드 시도 {retryCount}/{maxRetries} 실패]: {request.error}. {(retryCount < maxRetries ? "2초 후 재시도..." : "")}");
+                    Debug.LogWarning($"[NetworkManager 경고] 다운로드 시도 {retryCount}/{maxRetries} 실패]: {request.error}. {(retryCount < maxRetries ? "2초 후 재시도..." : "")}");
                     if (retryCount < maxRetries) yield return new WaitForSeconds(2.0f); // 2초 대기 후 재시도
                 }
             }
@@ -110,7 +104,7 @@ public class NetworkManager : MonoBehaviour
 
         if (!isSuccess)
         {
-            Debug.LogError("[최종 에러] PNG 데칼 이미지 다운로드 실패");
+            Debug.LogError("[NetworkManager 에러] PNG 데칼 이미지 다운로드 실패");
         }
     }
 
@@ -119,7 +113,7 @@ public class NetworkManager : MonoBehaviour
     {
         if (newTexture == null)
         {
-            Debug.LogError("[Decal 에러] 전달된 텍스처 데이터가 Null입니다.");
+            Debug.LogError("[NetworkManager 에러] 전달된 히트맵 텍스처(PNG) 데이터가 Null입니다.");
             return;
         }
 
@@ -141,20 +135,21 @@ public class NetworkManager : MonoBehaviour
                 mapoDecalProjector.enabled = true;
             }
 
-            Debug.Log("[Decal] 원본 머테리얼(Base_Map) 텍스처 교체 및 새로고침 성공");
+            Debug.Log("[NetworkManager] 히트맵 텍스처 교체 및 새로고침 성공");
         }
         else
         {
-            Debug.LogError("[Decal 에러] NetworkManager 인스펙터에 MapoDirectMaterial이 등록되지 않았습니다.");
+            Debug.LogError("[NetworkManager 에러] NetworkManager 인스펙터에 MapoDirectMaterial이 등록되지 않았습니다.");
         }
     }
     #endregion
 
 
-    #region ``격자 정보 받아와서 rawJsonText로 반환``
-    public IEnumerator FetchZoneFromApi(Action<string> onResult)
+    #region ``grid.geojson 받아와서 rawJsonText로 반환``
+    public IEnumerator FetchGeoJsonData(Action<string> onResult)
     {
-        string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm={apiTargetTime}";
+        //string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm={apiTargetTime}";
+        string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm=202511151400";
         UnityWebRequest request = UnityWebRequest.Get(requestUrl);
 
         request.timeout = 30;
@@ -167,10 +162,12 @@ public class NetworkManager : MonoBehaviour
             if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError($"[서버 에러] 로드 실패: {request.error}");
+                IsGeoJsonLoaded = false; // 실패 시 플래그 false 유지
                 onResult?.Invoke(null);
             }
             else
             {
+                IsGeoJsonLoaded = true; // 성공 시 true 설정
                 onResult?.Invoke(request.downloadHandler.text);
             }
         }
@@ -179,15 +176,9 @@ public class NetworkManager : MonoBehaviour
             // 에러가 나든 성공하든 통신 종료 후 리소스를 즉시 반납하여
             // 메모리 누수 방지 및 재사용 준비 (다음 통신 시 충돌 방지)
             request.Dispose();
-            Debug.Log("[NetworkManager] 리소스 해제 완료");
+            Debug.Log("[NetworkManager] 통신 종료 후 리소스 해제 완료");
         }
     }
     #endregion
-
-
-
-
-
-
 
 }
