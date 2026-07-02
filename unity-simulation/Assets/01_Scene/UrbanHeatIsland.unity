@@ -3334,6 +3334,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61cc13fdaf483304288ed0aa5970b702, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResultPanel
+  GreeningRatio_txt: {fileID: 0}
+  GreeningCount_txt: {fileID: 0}
+  TotalGreeningArea_txt: {fileID: 0}
+  ExpectedEffect: {fileID: 0}
 --- !u!1 &2853007311809144436
 GameObject:
   m_ObjectHideFlags: 0
@@ -8514,7 +8518,7 @@ MonoBehaviour:
   dateDropdown: {fileID: 4622442497645996253}
   visualizationStartButton: {fileID: 1013105724953137746}
   selectGreeneryZoneButton: {fileID: 4020004356899052057}
-  startGreeneryButton: {fileID: 0}
+  startGreeneryButton: {fileID: 5078322655318111471}
   installShadeButton: {fileID: 0}
 --- !u!222 &8839888927998226150
 CanvasRenderer:

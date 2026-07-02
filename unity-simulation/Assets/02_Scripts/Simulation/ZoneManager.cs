@@ -39,7 +39,7 @@ public class ZoneManager : MonoBehaviour
         zoneSelector = GetComponent<ZoneSelector>();
         if (zoneGenerator == null) zoneGenerator = gameObject.AddComponent<ZoneGenerator>();
         if (zoneRenderer == null) zoneRenderer = gameObject.AddComponent<ZoneRenderer>();
-        if (zoneRenderer == null) zoneSelector = gameObject.AddComponent<ZoneSelector>();
+        if (zoneSelector == null) zoneSelector = gameObject.AddComponent<ZoneSelector>();
     }
 
     void OnEnable()

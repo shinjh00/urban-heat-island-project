@@ -130,6 +130,14 @@ public class ZoneGenerator : MonoBehaviour
         Debug.Log("[ZoneGenerator] ShowGrids 실행. 그리드 표시 ON");
     }
 
+    //추가
+    public void HideGrids()
+    {
+        gridsVisible = false;
+        ApplyVisibility();
+        Debug.Log("[ZoneGenerator] HideGrids 실행. 그리드 표시 OFF");
+    }
+
     private void ApplyVisibility()
     {
         foreach (GameObject grid in spawnedGrids)

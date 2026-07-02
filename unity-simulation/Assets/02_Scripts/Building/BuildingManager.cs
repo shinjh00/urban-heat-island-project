@@ -327,6 +327,9 @@ public class BuildingManager : MonoBehaviour
 
         Debug.Log($"[BuildingManager] 그리드 건물 로드 완료 — {count}개");
 
+        // [추가] 건물 로드 끝났으니 그리드 판 정리
+        ZoneManager.Instance.zoneGenerator.HideGrids();
+
         // 스폰 루프가 끝날 때까지 대기 처리가 보장된 지점 (여기서 yield return이 모두 완료됨)
         Debug.Log($"[BuildingManager] 건물 배치 완료({count}개). 분류 연산기를 가동합니다.");
 
