@@ -22,11 +22,13 @@ public class ControlPanel : MonoBehaviour
 
     [Header("옥상 녹화 시뮬레이션 탭")]
     [SerializeField]
-    private Button selectGreeneryZoneButton; //구역 선택가능 버튼
+    private Button selectGreeneryZoneButton;    // 구역 선택가능 버튼
     [SerializeField]
-    private Slider selecGreeneryRatioSlider; //목표 녹화율 설정 슬라이더
+    private TMP_Text currentRatioText;       // 슬라이더 조작 시 현재 수치 텍스트
     [SerializeField]
-    private Button startGreeneryButton; // 시뮬레이션 시작 버튼
+    private Slider selecGreeneryRatioSlider;    // 목표 녹화율 설정 슬라이더
+    [SerializeField]
+    private Button startGreeneryButton;         // 시뮬레이션 시작 버튼
 
     [Header("그늘막 설치 시뮬레이션 탭")]
     [SerializeField]
@@ -56,6 +58,9 @@ public class ControlPanel : MonoBehaviour
         // 드롭다운 아이템 생성 및 초기화
         InitDateDropdown();
 
+        // 시작 시 현재 슬라이더 값 즉시 반영
+        UpdatePercentValue(selecGreeneryRatioSlider.value);
+
         // 시각화 시작 버튼 리스너 등록
         if (visualizationStartButton != null)
         {
@@ -73,6 +78,12 @@ public class ControlPanel : MonoBehaviour
         {
             startGreeneryButton.onClick.AddListener(OnStartGreeneryButtonClicked);
         }
+
+        // 슬라이더 값이 바뀔 때 실시간으로 텍스트 업데이트하는 리스너
+        if (selecGreeneryRatioSlider != null)
+        {
+            selecGreeneryRatioSlider.onValueChanged.AddListener(UpdatePercentValue);
+        }
     }
 
     private void OnEnable()
@@ -86,16 +97,8 @@ public class ControlPanel : MonoBehaviour
         ZoneSelector.OnZoneSelected -= HandleZoneSelected;
     }
 
-    // 그리드가 선택될 때마다 호출되어 zone 정보를 캐싱
-    private void HandleZoneSelected(ZoneItem selectedItem)
-    {
-        if (selectedItem == null || selectedItem.data == null) return;
 
-        selectedZoneData = selectedItem.data;
-        Debug.Log($"[ControlPanel] 선택된 Zone 캐싱 완료 — ID: {selectedZoneData.zoneId}, 온도: {selectedZoneData.temperature}");
-    }
-
-
+    #region `` 시각화 UI 상호작용 관련 ``
     private void SwitchTab(int tabIndex)
     {
         if (tabIndex < 0 || tabIndex >= contentPanels.Length)
@@ -153,31 +156,19 @@ public class ControlPanel : MonoBehaviour
     // 드롭다운 아이템을 선택했을 때 실행될 기능
     private void OnDropdownValueChanged(int index)  // isDateSelected
     {
-        // 🌟 [최초 선택] 아직 날짜를 선택하지 않은 상태일 때
         if (!isDateSelected)
         {
-            // 드롭다운을 열었다가 아무것도 안 고르고 닫았을 때 (index가 여전히 0일 때)는 무시합니다.
             if (index == 0) return;
-
-            // 유저가 진짜 날짜를 골랐다면, 선택한 글자를 기억합니다.
             string selectedTextTemp = dateDropdown.options[index].text;
-
-            // 🌟 유저가 고른 시점에 0번째인 '년/월 선택'을 리스트에서 영구 제거합니다.
             dateDropdown.options.RemoveAt(0);
-
-            // 플래그를 true로 바꾸어 다음부턴 이 조건문에 들어오지 못하게 만듭니다.
             isDateSelected = true;
-
-            // 0번 방이 사라졌으니 새로 정렬된 리스트에서 유저가 골랐던 텍스트의 방 번호를 다시 찾습니다.
             int newIndex = dateDropdown.options.FindIndex(option => option.text == selectedTextTemp);
 
-            // value 변경 시 발생하는 중복 호출(무한루프) 방지용 안전장치
             dateDropdown.onValueChanged.RemoveListener(OnDropdownValueChanged);
             dateDropdown.value = newIndex;
             dateDropdown.RefreshShownValue();
             dateDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
 
-            // 인덱스를 새로 찾은 번호로 보정해 줍니다.
             index = newIndex;
         }
 
@@ -192,7 +183,29 @@ public class ControlPanel : MonoBehaviour
 
         UIManager.Instance.SetSelectedDate(selectedDateText);
     }
+    #endregion
 
+
+    #region `` 시뮬레이션 UI 상호작용 관련 ``
+    // 그리드가 선택될 때마다 호출되어 zone 정보를 캐싱
+    private void HandleZoneSelected(ZoneItem selectedItem)
+    {
+        if (selectedItem == null || selectedItem.data == null) return;
+
+        selectedZoneData = selectedItem.data;
+        Debug.Log($"[ControlPanel] 선택된 Zone 캐싱 완료 — ID: {selectedZoneData.zoneId}, 온도: {selectedZoneData.temperature}");
+    }
+
+    // 목표 녹화율 슬라이더 움직일 시 숫자 텍스트 출력
+    private void UpdatePercentValue(float value)
+    {
+        int intValue = Mathf.RoundToInt(value);
+        currentRatioText.text = $"{intValue}%";
+    }
+    #endregion
+
+
+    #region `` 시작 버튼 클릭 리스너 ``
     // 시각화 시작 버튼을 눌렀을 때 실행될 함수
     private void OnVisualizationStartButtonClicked()
     {
@@ -230,5 +243,15 @@ public class ControlPanel : MonoBehaviour
             greeneryRate
         );
     }
+    #endregion
 
+
+    private void OnDestroy()
+    {
+        // 오브젝트가 파괴될 때 슬라이더 이벤트 리스너 안전하게 해제
+        if (selecGreeneryRatioSlider != null)
+        {
+            selecGreeneryRatioSlider.onValueChanged.RemoveListener(UpdatePercentValue);
+        }
+    }
 }
