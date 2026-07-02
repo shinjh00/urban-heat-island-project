@@ -35,6 +35,10 @@ public class GreeneryCalculator : MonoBehaviour
     /// </summary>
     private void ExecuteCalculation(CalculationRequestData request)
     {
+        // 연산 진입 확인
+        Debug.Log($"[GreeneryCalculator] 연산 요청 수신! 타겟 구역 건물 수: {request.targetZoneBuildings.Count}개," +
+            $" 전체 건물 수: {request.allBuildings.Count}개");
+
         CalculationResultData result = new CalculationResultData();
         result.buildingScores = new Dictionary<string, float>();
         result.radiusCounts = new Dictionary<string, int>();
@@ -43,6 +47,10 @@ public class GreeneryCalculator : MonoBehaviour
         result.totalAreaSize = CalcTotalAreaSize(request.targetZoneBuildings);
         result.expectedGreeneryArea = CalcTotalGreeneryArea(result.totalAreaSize, request.greeneryRate);
         result.expectedTempEffect = CalcExpectedTempEffect(request.greeneryRate);
+
+        // 1단계 연산 결과 출력
+        Debug.Log($"[GreeneryCalculator] 1단계 완료 | 총 구역 면적: {result.totalAreaSize}㎡," +
+            $" 목표 녹화 면적: {result.expectedGreeneryArea}㎡, 예상 감소 온도: {result.expectedTempEffect}°C");
 
         // 2. 루프를 돌며 각 빌딩별 개별 점수 및 반경 연산 진행
         foreach (var bSimData in request.targetZoneBuildings)
@@ -57,6 +65,11 @@ public class GreeneryCalculator : MonoBehaviour
             result.buildingScores[bSimData.buildingID] = score;
         }
 
+        // [로그 추가] 2단계 연산 결과 확인
+        Debug.Log($"[GreeneryCalculator] 2단계 완료 | {request.targetZoneBuildings.Count}개 " +
+            $"건물의 개별 점수 및 반경 연산 완료.");
+
+
         // 3. 점수 기반 랭킹 산출 + 누적 면적 기준 녹화 상태(GreeneryPriority / GreeneryTop10) 판정
         result.rankedBuildings = CalcGreeneryRanking(
             request.targetZoneBuildings,
@@ -66,6 +79,8 @@ public class GreeneryCalculator : MonoBehaviour
 
         // 4. [이벤트 발행] 연산이 완료된 최종 바구니를 전방으로 발사합니다.
         OnCalculationCompleted?.Invoke(result);
+
+        Debug.Log($"[GreeneryCalculator] 모든 연산 성공! 최종 Greenery Ranking 리스트를 Controller로 발송합니다.");
     }
 
 
@@ -130,7 +145,7 @@ public class GreeneryCalculator : MonoBehaviour
     // 목표 녹화율에 따른 목표 녹화 면적 계산
     public float CalcTotalGreeneryArea(float totalAreaSize, float currentGreeneryRate)
     {
-        float expectedGreeneryArea = totalAreaSize * (currentGreeneryRate / 100f);
+        float expectedGreeneryArea = totalAreaSize * (currentGreeneryRate);
 
         return expectedGreeneryArea;
     }
@@ -145,7 +160,7 @@ public class GreeneryCalculator : MonoBehaviour
         // 목표 녹화율에 따른 예상 감소 온도 제작
         // 녹화율 높을수록 낮은 값 내려감
         // 내려가는 값 리턴
-        float expectedTempEffect = MaxExpectedTempEffect / 100 * greeneryRate;
+        float expectedTempEffect = MaxExpectedTempEffect * greeneryRate;
 
         return expectedTempEffect;
     }
@@ -216,6 +231,7 @@ public class GreeneryCalculator : MonoBehaviour
         // 3. 순위 순서대로 areaSize를 누적하며 목표 녹화 면적(expectedGreeneryArea)에
         //    도달할 때까지 GreeneryPriority 상태 부여
         float accumulatedArea = 0f;
+        int priorityAssignCount = 0; // [로그용 변수 추가]
 
         for (int i = 0; i < rankedZoneBuildings.Count; i++)
         {
@@ -225,7 +241,12 @@ public class GreeneryCalculator : MonoBehaviour
             accumulatedArea += updatedData.areaSize;
             updatedData.greeneryStatus = "GreeneryPriority";
             rankedZoneBuildings[i] = updatedData;
+            priorityAssignCount++;
         }
+
+        // 면적 누적 결과 리포트
+        Debug.Log($"[GreeneryCalculator] 랭킹 가공 중 | 목표 면적({expectedGreeneryArea}㎡) " +
+            $"대비 누적 면적: {accumulatedArea}㎡ (Priority 부여 건물 수: {priorityAssignCount}개)");
 
         // 4. 순위 1~10위는 GreeneryPriority 대신 GreeneryTop10으로 재지정
         for (int i = 0; i < rankedZoneBuildings.Count; i++)
