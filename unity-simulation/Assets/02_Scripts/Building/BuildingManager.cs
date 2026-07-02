@@ -256,6 +256,7 @@ public class BuildingManager : MonoBehaviour
         MeshRenderer mr = obj.AddComponent<MeshRenderer>();
         mr.enabled = false;
         mr.material = defaultMaterial;
+        mr.renderingLayerMask = 1u << 1;  // [추가] BUILDING 레이어 비트만 켜서 데칼 투사 제외
         MeshCollider mc = obj.AddComponent<MeshCollider>();
         mc.sharedMesh = mesh;
         BuildingInfo info = obj.AddComponent<BuildingInfo>();
