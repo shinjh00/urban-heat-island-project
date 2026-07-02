@@ -38,6 +38,8 @@ public class ControlPanel : MonoBehaviour
     // 드롭다운에 들어갈 옵션 리스트
     private List<string> dateOptions = new List<string>();
 
+    private bool isDateSelected;
+
 
     void Start()
     {
@@ -122,6 +124,10 @@ public class ControlPanel : MonoBehaviour
             return;
 
         dateDropdown.ClearOptions();
+        dateOptions.Clear();
+
+        isDateSelected = false;
+        dateOptions.Add("년/월 선택");
 
         // 추가할 글자들을 담을 리스트
         DateTime currentTime = new DateTime(2026, 6, 1);
@@ -145,8 +151,36 @@ public class ControlPanel : MonoBehaviour
     }
 
     // 드롭다운 아이템을 선택했을 때 실행될 기능
-    private void OnDropdownValueChanged(int index)
+    private void OnDropdownValueChanged(int index)  // isDateSelected
     {
+        // 🌟 [최초 선택] 아직 날짜를 선택하지 않은 상태일 때
+        if (!isDateSelected)
+        {
+            // 드롭다운을 열었다가 아무것도 안 고르고 닫았을 때 (index가 여전히 0일 때)는 무시합니다.
+            if (index == 0) return;
+
+            // 유저가 진짜 날짜를 골랐다면, 선택한 글자를 기억합니다.
+            string selectedTextTemp = dateDropdown.options[index].text;
+
+            // 🌟 유저가 고른 시점에 0번째인 '년/월 선택'을 리스트에서 영구 제거합니다.
+            dateDropdown.options.RemoveAt(0);
+
+            // 플래그를 true로 바꾸어 다음부턴 이 조건문에 들어오지 못하게 만듭니다.
+            isDateSelected = true;
+
+            // 0번 방이 사라졌으니 새로 정렬된 리스트에서 유저가 골랐던 텍스트의 방 번호를 다시 찾습니다.
+            int newIndex = dateDropdown.options.FindIndex(option => option.text == selectedTextTemp);
+
+            // value 변경 시 발생하는 중복 호출(무한루프) 방지용 안전장치
+            dateDropdown.onValueChanged.RemoveListener(OnDropdownValueChanged);
+            dateDropdown.value = newIndex;
+            dateDropdown.RefreshShownValue();
+            dateDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
+
+            // 인덱스를 새로 찾은 번호로 보정해 줍니다.
+            index = newIndex;
+        }
+
         // dateDropdown.options[index].text로 선택한 "2026년 06월" 글자를 가져옴
         string originalText = dateDropdown.options[index].text;
 
