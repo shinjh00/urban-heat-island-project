@@ -166,7 +166,7 @@ public class ZoneGenerator : MonoBehaviour
         (double lon, double lat) = selectedItem.GetCenter();
 
         // 반경 범위 건물 스폰
-        BuildingManager.Instance.FocusOnGrid(lon, lat);
+        BuildingManager.Instance.FocusOnGrid(selectedItem.data.zoneId, selectedItem.data.polygon, selectedItem.data.temperature, lon, lat);
     }
     #endregion
     

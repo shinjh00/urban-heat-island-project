@@ -118,6 +118,7 @@ public class BuildingManager : MonoBehaviour
     }
 
 
+    #region `` 카메라 시야 기준 건물 스폰 함수``
     // 주기적으로 스폰/제거 반복
     IEnumerator UpdateBuildingsLoop()
     {
@@ -192,6 +193,37 @@ public class BuildingManager : MonoBehaviour
         yield break;
     }
 
+    // 카메라 반경 밖으로 벗어난 건물 제거
+    void RemoveFarBuildings()
+    {
+        List<string> toRemove = new List<string>();
+
+        foreach (KeyValuePair<string, GameObject> kvp in activeBuildings)
+        {
+            BuildingData data = buildingDataList.Find(d => d.id == kvp.Key);
+            if (data == null)
+            {
+                toRemove.Add(kvp.Key); continue;
+            }
+            if (GetDistanceMeters(camLat, camLon, data.lat, data.lon) > activationRadius * 1.5f)
+            {
+                Destroy(kvp.Value);
+                toRemove.Add(kvp.Key);
+            }
+        }
+
+        foreach (string key in toRemove)
+        {
+            activeBuildings.Remove(key);
+            OnBuildingRemoved?.Invoke(key);
+        }
+
+        if (toRemove.Count > 0)
+            Debug.Log("[BuildingManager] 제거: " + toRemove.Count + " | 활성:" + activeBuildings.Count);
+    }
+    #endregion
+
+
     // 건물 오브젝트 하나를 생성할 때 실행되는 내용
     // BuildingData로 건물 GameObject를 생성하고 씬에 배치
     private void SpawnBuilding(BuildingData data)
@@ -234,35 +266,6 @@ public class BuildingManager : MonoBehaviour
     }
 
 
-    // 카메라 반경 밖으로 벗어난 건물 제거
-    void RemoveFarBuildings()
-    {
-        List<string> toRemove = new List<string>();
-
-        foreach (KeyValuePair<string, GameObject> kvp in activeBuildings)
-        {
-            BuildingData data = buildingDataList.Find(d => d.id == kvp.Key);
-            if (data == null) {
-                toRemove.Add(kvp.Key); continue;
-            }
-            if (GetDistanceMeters(camLat, camLon, data.lat, data.lon) > activationRadius * 1.5f)
-            {
-                Destroy(kvp.Value);
-                toRemove.Add(kvp.Key);
-            }
-        }
-
-        foreach (string key in toRemove)
-        {
-            activeBuildings.Remove(key);
-            OnBuildingRemoved?.Invoke(key);
-        }
-
-        if (toRemove.Count > 0)
-            Debug.Log("[BuildingManager] 제거: " + toRemove.Count + " | 활성:" + activeBuildings.Count);
-    }
-
-
     // Cesium 지형 높이를 샘플링하여 올바른 위치에 건물 배치
     IEnumerator PlaceBuilding(GameObject obj, double lon, double lat)
     {
@@ -292,8 +295,8 @@ public class BuildingManager : MonoBehaviour
     }
 
 
-    // 추가 부분 그리드 관련 함수
-    public void FocusOnGrid(double centerLon, double centerLat)
+    #region ``시뮬레이션 중 그리드 선택 관련 함수 (Zone)``
+    public void FocusOnGrid(string zoneId, double[,] zonePolygon, float temp, double centerLon, double centerLat)
     {
         gridMode = true;
         spawnEnabled = true;
@@ -301,10 +304,12 @@ public class BuildingManager : MonoBehaviour
         zoneCenterLat = centerLat;
 
         Debug.Log($"[BuildingManager] 그리드 로드 시작 — 중심({centerLon:F6}, {centerLat:F6})");
-        StartCoroutine(LoadGridBuildings());
+        Debug.Log($"[BuildingManager] 그리드 주변 건물 생성 시작 — 대상 ZoneID: {zoneId} (온도: {temp})");
+        StartCoroutine(LoadGridBuildings(zoneId, zonePolygon, temp));
     }
 
-    private IEnumerator LoadGridBuildings()
+    // 시뮬레이션 중 그리드 선택 시 그리드보다 살짝 넓은 범위 기준으로 건물들 스폰
+    private IEnumerator LoadGridBuildings(string zoneId, double[,] zonePolygon, float temp)
     {
         int count = 0;
         foreach (BuildingData data in buildingDataList)
@@ -321,10 +326,15 @@ public class BuildingManager : MonoBehaviour
         }
 
         Debug.Log($"[BuildingManager] 그리드 건물 로드 완료 — {count}개");
+
+        // 스폰 루프가 끝날 때까지 대기 처리가 보장된 지점 (여기서 yield return이 모두 완료됨)
+        Debug.Log($"[BuildingManager] 건물 배치 완료({count}개). 분류 연산기를 가동합니다.");
+
+        // 스폰 완료 후 건물에 zoneId, temperature 넘겨주기
+        ZoneClassifier classifier = new ZoneClassifier();
+        classifier.ClassifyAndApplyZone(zoneId, zonePolygon, temp, activeBuildings);
     }
-
-
-
+    #endregion
 
 
     #region ``주요 함수에 필요한 보조 함수들``

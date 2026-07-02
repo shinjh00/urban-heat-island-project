@@ -8,9 +8,9 @@ public class BuildingInfo : MonoBehaviour
     public BuildingData data;
 
     // Zone Id 값
-    public int zoneId;
+    public string zoneId;
 
-    // 온도
+    // Zone 온도값
     public float temperature;
 
     // 반경 0m 내에 있는 건물 수
@@ -21,6 +21,4 @@ public class BuildingInfo : MonoBehaviour
 
     // 옥상 녹화 우선순위
     public int greeneryRank;
-
-
 }
