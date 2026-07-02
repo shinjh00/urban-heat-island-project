@@ -128,25 +128,29 @@ public class ControlPanel : MonoBehaviour
 
         dateDropdown.ClearOptions();
         dateOptions.Clear();
-
         isDateSelected = false;
-        dateOptions.Add("년/월 선택");
+        dateOptions.Add("----------");
 
         // 추가할 글자들을 담을 리스트
         DateTime currentTime = new DateTime(2026, 6, 1);
         DateTime endTime = new DateTime(2025, 1, 1);
         while (currentTime >= endTime)
         {
+            //// "2026년 06월" 형태로 문자열 만들기
+            //string dateText = currentTime.ToString("yyyy년 MM월");
+            //dateOptions.Add(dateText);
+            //// 한 달 빼기
+            //currentTime = currentTime.AddMonths(-1);
+
             // "2026년 06월" 형태로 문자열 만들기
-            string dateText = currentTime.ToString("yyyy년 MM월");
-            dateOptions.Add(dateText);
+            dateOptions.Add(currentTime.ToString("yyyy년 MM월"));
             // 한 달 빼기
             currentTime = currentTime.AddMonths(-1);
         }
 
         // 생성한 리스트를 드롭다운에 넣기
         dateDropdown.AddOptions(dateOptions);
-        //dateDropdown.value = 0;  // 0번 인덱스를 default로
+        dateDropdown.value = 0;  // 0번 인덱스를 default로
         dateDropdown.RefreshShownValue();  // 화면 갱신
 
         // 드롭다운 리스너 연결
@@ -156,25 +160,12 @@ public class ControlPanel : MonoBehaviour
     // 드롭다운 아이템을 선택했을 때 실행될 기능
     private void OnDropdownValueChanged(int index)  // isDateSelected
     {
-        if (!isDateSelected)
-        {
-            if (index == 0) return;
-            string selectedTextTemp = dateDropdown.options[index].text;
-            dateDropdown.options.RemoveAt(0);
-            isDateSelected = true;
-            int newIndex = dateDropdown.options.FindIndex(option => option.text == selectedTextTemp);
+        if (index == 0) return;
 
-            dateDropdown.onValueChanged.RemoveListener(OnDropdownValueChanged);
-            dateDropdown.value = newIndex;
-            dateDropdown.RefreshShownValue();
-            dateDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
-
-            index = newIndex;
-        }
+        isDateSelected = true;
 
         // dateDropdown.options[index].text로 선택한 "2026년 06월" 글자를 가져옴
         string originalText = dateDropdown.options[index].text;
-
         string yearText = originalText.Substring(0, 4);     // 0번째부터 4개
         string monthText = originalText.Substring(6, 2);    // 6번째부터 2개
 
@@ -199,16 +190,25 @@ public class ControlPanel : MonoBehaviour
     // 목표 녹화율 슬라이더 움직일 시 숫자 텍스트 출력
     private void UpdatePercentValue(float value)
     {
+        value = value * 100;
         int intValue = Mathf.RoundToInt(value);
         currentRatioText.text = $"{intValue}%";
     }
     #endregion
 
 
-    #region `` 시작 버튼 클릭 리스너 ``
+    #region `` 버튼 클릭 리스너 ``
     // 시각화 시작 버튼을 눌렀을 때 실행될 함수
     private void OnVisualizationStartButtonClicked()
     {
+        // 날짜를 아직 한 번도 선택 안 했다면 서버 요청 블로킹
+        if (!isDateSelected)
+        {
+            // 왼쪽위에 알림 텍스트 출력
+            Debug.LogWarning("[ControlPanel] 날짜를 먼저 선택해 주세요.");
+            return;
+        }
+
         Debug.Log("[NetworkManager] 시각화 시작. 서버에 데이터 요청을 보냅니다.");
         // NetworkManager에게 현재 선택된 날짜로 새로고침하도록 요청
         NetworkManager.Instance.RefreshDecalData();
