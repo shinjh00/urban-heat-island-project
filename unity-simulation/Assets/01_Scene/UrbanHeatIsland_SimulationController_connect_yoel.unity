@@ -1159,8 +1159,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2007925056}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 363.98206, y: -965.24536, z: 755.44855}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3435,10 +3435,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61cc13fdaf483304288ed0aa5970b702, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResultPanel
-  GreeningRatio_txt: {fileID: 0}
-  GreeningCount_txt: {fileID: 0}
-  TotalGreeningArea_txt: {fileID: 0}
-  ExpectedEffect: {fileID: 0}
+  GreeningRatio_txt: {fileID: 8932317106526893081}
+  GreeningCount_txt: {fileID: 7071130003895640637}
+  TotalGreeningArea_txt: {fileID: 8128226874541174251}
+  ExpectedEffect: {fileID: 4125800947592662105}
 --- !u!1 &2853007311809144436
 GameObject:
   m_ObjectHideFlags: 0
