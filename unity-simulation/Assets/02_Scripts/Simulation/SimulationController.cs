@@ -103,8 +103,8 @@ public class SimulationController : MonoBehaviour
 
     private void Start()
     {
-        // 1. BuildingManager가 건물을 생성할 때 발생하는 이벤트를 구독합니다.
-        BuildingManager.OnBuildingSpawned += AddSpawnedBuilding;
+        // [구독] BuildingManager가 건물을 생성할 때 발생하는 이벤트를 구독합니다.
+        BuildingManager.OnBuildingZoneAssigned += AddSpawnedBuilding;
         // [구독] Calculator가 연산을 끝내고 던지는 이벤트를 구독합니다.
         GreeneryCalculator.OnCalculationCompleted += OnReceiveCalculationResult;
     }
@@ -138,10 +138,12 @@ public class SimulationController : MonoBehaviour
         BuildingInfo info = buildingObj.GetComponent<BuildingInfo>();
         if (info != null)
         {
-            newBuilding.zoneID = info.zoneId.ToString();
+            // zone 밖 건물은 zoneId가 null일 수 있으므로 빈 문자열로 안전하게 처리
+            newBuilding.zoneID = info.zoneId ?? string.Empty;
         }
         else
         {
+            newBuilding.zoneID = string.Empty;
             Debug.LogWarning($"[SimulationController] {data.id} 건물에서 BuildingInfo 컴포넌트를 찾을 수 없습니다.");
         }
 

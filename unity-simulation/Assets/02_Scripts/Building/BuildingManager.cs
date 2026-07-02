@@ -35,6 +35,9 @@ public class BuildingManager : MonoBehaviour
     // 건물 스폰 완료 시 발생 이벤트
     public static event Action<BuildingData, GameObject> OnBuildingSpawned;
 
+    // zone 분류(zoneId, temperature 할당)까지 끝난 뒤 발행되는 이벤트
+    public static event Action<BuildingData, GameObject> OnBuildingZoneAssigned;
+
     // 건물 제거 시 발생 이벤트
     public static event Action<string> OnBuildingRemoved;
 
@@ -327,7 +330,7 @@ public class BuildingManager : MonoBehaviour
 
         Debug.Log($"[BuildingManager] 그리드 건물 로드 완료 — {count}개");
 
-        // [추가] 건물 로드 끝났으니 그리드 판 정리
+        // 건물 로드 끝났으니 그리드 판 정리
         ZoneManager.Instance.zoneGenerator.HideGrids();
 
         // 스폰 루프가 끝날 때까지 대기 처리가 보장된 지점 (여기서 yield return이 모두 완료됨)
@@ -336,6 +339,22 @@ public class BuildingManager : MonoBehaviour
         // 스폰 완료 후 건물에 zoneId, temperature 넘겨주기
         ZoneClassifier classifier = new ZoneClassifier();
         classifier.ClassifyAndApplyZone(zoneId, zonePolygon, temp, activeBuildings);
+
+        // 분류가 끝난 뒤, 이번 그리드 로드로 스폰된 건물들에 대해
+        // zone 정보가 반영된 상태로 이벤트를 다시 발행 (SimulationController가 이걸 구독)
+        int assignedEventCount = 0;
+        foreach (var kvp in activeBuildings)
+        {
+            BuildingInfo info = kvp.Value.GetComponent<BuildingInfo>();
+            if (info != null && info.data != null)
+            {
+                OnBuildingZoneAssigned?.Invoke(info.data, kvp.Value);
+                assignedEventCount++;
+            }
+        }
+        Debug.Log($"[BuildingManager] OnBuildingZoneAssigned 이벤트 발행 완료 — {assignedEventCount}개");
+
+
     }
     #endregion
 
