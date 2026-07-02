@@ -143,7 +143,7 @@ public class ControlPanel : MonoBehaviour
 
         // 생성한 리스트를 드롭다운에 넣기
         dateDropdown.AddOptions(dateOptions);
-        dateDropdown.value = 0;  // 0번 인덱스를 default로
+        //dateDropdown.value = 0;  // 0번 인덱스를 default로
         dateDropdown.RefreshShownValue();  // 화면 갱신
 
         // 드롭다운 리스너 연결
@@ -196,8 +196,7 @@ public class ControlPanel : MonoBehaviour
     // 시각화 시작 버튼을 눌렀을 때 실행될 함수
     private void OnVisualizationStartButtonClicked()
     {
-        Debug.Log("[ControlPanel] 시각화 시작 버튼 클릭. 서버에 데이터 요청을 보냅니다.");
-
+        Debug.Log("[NetworkManager] 시각화 시작. 서버에 데이터 요청을 보냅니다.");
         // NetworkManager에게 현재 선택된 날짜로 새로고침하도록 요청
         NetworkManager.Instance.RefreshDecalData();
     }
@@ -205,7 +204,6 @@ public class ControlPanel : MonoBehaviour
     // 옥상 녹화 구역 선택 버튼을 눌렀을 때 실행될 함수
     private void OnSelectGreeneryZoneButtonClicked()
     {
-        Debug.Log("[ControlPanel] 구역 선택 버튼 클릭");
         ZoneManager.Instance.EnableZoneSelection();
     }
 
