@@ -62,12 +62,12 @@ public class BuildingSelector : MonoBehaviour
 
             if (info != null)
             {
-                // 🔹 구역 선택 모드면: 단일 선택 대신 그리드 전체 선택
-                if (zoneSelectionMode)
-                {
-                    SelectZone(info);
-                    return;
-                }
+                //// 🔹 구역 선택 모드면: 단일 선택 대신 그리드 전체 선택
+                //if (zoneSelectionMode)
+                //{
+                //    SelectZone(info);
+                //    return;
+                //}
 
                 // 일반 모드: 기존 단일 건물 선택 (그대로)
                 BuildingManager.Instance.SelectBuilding(info);
@@ -122,30 +122,30 @@ public class BuildingSelector : MonoBehaviour
         }
     }
 
-    // 매서드 추가부분
-    // '구역 선택' 버튼이 호출 (UI 버튼 OnClick 에 연결)
-    public void EnableZoneSelection()
-    {
-        zoneSelectionMode = true;
-        Debug.Log("[BuildingSelector] 구역 선택 모드 ON — 건물을 클릭하세요");
-    }
+    //// 매서드 추가부분
+    //// '구역 선택' 버튼이 호출 (UI 버튼 OnClick 에 연결)
+    //public void EnableZoneSelection()
+    //{
+    //    zoneSelectionMode = true;
+    //    Debug.Log("[BuildingSelector] 구역 선택 모드 ON — 건물을 클릭하세요");
+    //}
 
-    // 클릭한 건물이 속한 그리드 전체를 선택: 그 구역만 보이고 깜빡
-    private void SelectZone(BuildingInfo clicked)
-    {
-        if (clicked.data == null) return;
+    //// 클릭한 건물이 속한 그리드 전체를 선택: 그 구역만 보이고 깜빡
+    //private void SelectZone(BuildingInfo clicked)
+    //{
+    //    if (clicked.data == null) return;
 
-        selectedZoneBuildings = GetSameZoneBuildings(clicked);
+    //    selectedZoneBuildings = GetSameZoneBuildings(clicked);
 
-        if (greeneryVisualizer != null)
-        {
-            greeneryVisualizer.ShowOnly(selectedZoneBuildings);      // 그 구역만 보이기
-            greeneryVisualizer.BlinkAllBuildings(selectedZoneBuildings); // 잠깐 깜빡
-        }
+    //    if (greeneryVisualizer != null)
+    //    {
+    //        greeneryVisualizer.ShowOnly(selectedZoneBuildings);      // 그 구역만 보이기
+    //        greeneryVisualizer.BlinkAllBuildings(selectedZoneBuildings); // 잠깐 깜빡
+    //    }
 
-        Debug.Log($"[BuildingSelector] 구역 선택 완료 — {selectedZoneBuildings.Count}개 건물");
-        zoneSelectionMode = false; // 한 구역 선택했으면 모드 끄기
-    }
+    //    Debug.Log($"[BuildingSelector] 구역 선택 완료 — {selectedZoneBuildings.Count}개 건물");
+    //    zoneSelectionMode = false; // 한 구역 선택했으면 모드 끄기
+    //}
 
     // 클릭한 건물과 같은 500m 그리드 셀의 건물들 반환
     // [임시] zoneID 나오면 아래 셀 계산 대신 → if (info.zoneID == clicked.zoneID) 로 교체
