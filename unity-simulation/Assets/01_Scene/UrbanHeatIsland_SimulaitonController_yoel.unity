@@ -450,6 +450,62 @@ MonoBehaviour:
   _updateInEditor: 1
   _logSelectionStats: 0
   _createPhysicsMeshes: 1
+--- !u!1 &924494591
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 924494592}
+  - component: {fileID: 924494593}
+  m_Layer: 0
+  m_Name: SimulationController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &924494592
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 924494591}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -6018.4375, y: -966.37646, z: -708.5406}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7719428042578334214}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &924494593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 924494591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e15ceb415ec6b684891ff5e3b6fbfc8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimulationController
+  radiusBuildingCount: 0
+  greeneryBuildingcount: 0
+  totalAreaSize: 0
+  expectedGreeneryArea: 0
+  expectedTempEffect: 0
+  greeneryAfterTemp: 0
+  greeneryRate: 0
+  currentTargetZoneID: 0
+  gridOriginalTemp: 0
+  isBuildingDataLoaded: 0
+  spawnedAllBuildings: []
+  greeneryRankingBuildings: []
 --- !u!1 &928676644
 GameObject:
   m_ObjectHideFlags: 0
@@ -1189,10 +1245,10 @@ RectTransform:
   - {fileID: 2876268875140873848}
   m_Father: {fileID: 722468530933246310}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 200, y: -168}
+  m_SizeDelta: {x: 400, y: 336}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &133004413602211311
 MonoBehaviour:
@@ -1456,7 +1512,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &439960250043739503
 GameObject:
   m_ObjectHideFlags: 0
@@ -1653,9 +1709,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5324496705919552997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 115, y: -70}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &681000719017830074
@@ -1765,9 +1821,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5324496705919552997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 115, y: -430}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &885795247198220892
@@ -1781,7 +1837,7 @@ GameObject:
   - component: {fileID: 3456406993794898873}
   - component: {fileID: 1666238301278854214}
   m_Layer: 5
-  m_Name: SetRatioSlider
+  m_Name: ExpectedGreeneryRatioSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2607,7 +2663,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1978864593770740355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3179,7 +3235,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &2610758401166969386
 GameObject:
   m_ObjectHideFlags: 0
@@ -3213,9 +3269,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5324496705919552997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 115, y: -310}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2685250175562502676
@@ -3249,10 +3305,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 101684204570178487}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 260, y: -136}
-  m_SizeDelta: {x: 480, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2727846548904052117
 GameObject:
@@ -3334,6 +3390,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61cc13fdaf483304288ed0aa5970b702, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResultPanel
+  GreeningRatio_txt: {fileID: 0}
+  GreeningCount_txt: {fileID: 0}
+  TotalGreeningArea_txt: {fileID: 0}
+  ExpectedEffect: {fileID: 0}
 --- !u!1 &2853007311809144436
 GameObject:
   m_ObjectHideFlags: 0
@@ -3665,10 +3725,10 @@ RectTransform:
   - {fileID: 6118175687627881377}
   m_Father: {fileID: 4900915165708926270}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 200, y: -408}
-  m_SizeDelta: {x: 400, y: 144}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3220906508376168334
 MonoBehaviour:
@@ -4072,7 +4132,7 @@ RectTransform:
   m_Father: {fileID: 6440820996088578903}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -5468,7 +5528,7 @@ RectTransform:
   m_Father: {fileID: 851336197314102543}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -5741,10 +5801,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 101684204570178487}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 260, y: -28}
-  m_SizeDelta: {x: 480, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &5526145087325279679
 RectTransform:
@@ -5761,10 +5821,10 @@ RectTransform:
   - {fileID: 6683248151166861877}
   m_Father: {fileID: 722468530933246310}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 200, y: -408}
+  m_SizeDelta: {x: 400, y: 144}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &5548348917484656998
 RectTransform:
@@ -5984,7 +6044,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &5862901849639124860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6476,7 +6536,7 @@ GameObject:
   - component: {fileID: 3263457848689944935}
   - component: {fileID: 5078322655318111471}
   m_Layer: 5
-  m_Name: Button
+  m_Name: StartGreeneryButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6907,10 +6967,10 @@ RectTransform:
   - {fileID: 3456406993794898873}
   m_Father: {fileID: 4900915165708926270}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 200, y: -252}
-  m_SizeDelta: {x: 400, y: 168}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6600364474299081414
 CanvasRenderer:
@@ -7022,10 +7082,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 101684204570178487}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 260, y: -172}
-  m_SizeDelta: {x: 480, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6779994771514038192
 MonoBehaviour:
@@ -7703,6 +7763,7 @@ Transform:
   - {fileID: 1997081550689950145}
   - {fileID: 3293013101329346745}
   - {fileID: 7538878379866418078}
+  - {fileID: 924494592}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &7772867428028767617
@@ -8124,9 +8185,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5324496705919552997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 115, y: -190}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8306231561746815742
@@ -8514,7 +8575,8 @@ MonoBehaviour:
   dateDropdown: {fileID: 4622442497645996253}
   visualizationStartButton: {fileID: 1013105724953137746}
   selectGreeneryZoneButton: {fileID: 4020004356899052057}
-  startGreeneryButton: {fileID: 0}
+  selecGreeneryRatioSlider: {fileID: 1666238301278854214}
+  startGreeneryButton: {fileID: 5078322655318111471}
   installShadeButton: {fileID: 0}
 --- !u!222 &8839888927998226150
 CanvasRenderer:
@@ -8538,10 +8600,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 101684204570178487}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 260, y: -64}
-  m_SizeDelta: {x: 480, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8889004459737139173
 CanvasRenderer:
@@ -8881,10 +8943,10 @@ RectTransform:
   - {fileID: 1701378963129791549}
   m_Father: {fileID: 4900915165708926270}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 200, y: -84}
-  m_SizeDelta: {x: 400, y: 168}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &9027081051552900206
 MonoBehaviour:
@@ -8999,10 +9061,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 101684204570178487}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 260, y: -100}
-  m_SizeDelta: {x: 480, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9118463311666510547
 CanvasRenderer:

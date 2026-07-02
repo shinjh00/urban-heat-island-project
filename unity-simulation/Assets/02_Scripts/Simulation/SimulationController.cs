@@ -171,6 +171,30 @@ public class SimulationController : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// ControlPanel의 startGreeneryButton이 눌렸을 때 호출되는 진입점.
+    /// zone 정보(zoneId, temperature)와 목표 녹화율을 한 번에 받아 시뮬레이션을 시작합니다.
+    /// </summary>
+    public void StartGreenerySimulationForZone(string zoneId, float zoneTemp, float greeneryRateValue)
+    {
+        if (string.IsNullOrEmpty(zoneId))
+        {
+            Debug.LogWarning("[SimulationController] 유효하지 않은 zoneID입니다.");
+            return;
+        }
+
+        // 목표 녹화율 저장
+        greeneryRate = greeneryRateValue;
+
+        // 새 요청이므로 스폰 완료 감지 플래그를 초기화 (그리드 건물이 새로 스폰 중일 수 있음)
+        isBuildingDataLoaded = false;
+        lastCheckCount = -1;
+
+        Debug.Log($"[SimulationController] 옥상 녹화 시뮬레이션 시작 — Zone: {zoneId}, 기존 온도: {zoneTemp}, 목표 녹화율: {greeneryRateValue}%");
+
+        ProcessBuildingGreeneryRankings(zoneId, zoneTemp);
+    }
+
 
     public void ProcessBuildingGreeneryRankings(string zoneID, double zoneTemp)
     {

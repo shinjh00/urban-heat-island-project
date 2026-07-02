@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -23,14 +22,18 @@ public class ControlPanel : MonoBehaviour
 
     [Header("옥상 녹화 시뮬레이션 탭")]
     [SerializeField]
-    private Button selectGreeneryZoneButton;
+    private Button selectGreeneryZoneButton; //구역 선택가능 버튼
     [SerializeField]
-    private Button startGreeneryButton;
+    private Slider selecGreeneryRatioSlider; //목표 녹화율 설정 슬라이더
+    [SerializeField]
+    private Button startGreeneryButton; // 시뮬레이션 시작 버튼
 
     [Header("그늘막 설치 시뮬레이션 탭")]
     [SerializeField]
     private Button installShadeButton;
 
+    // ZoneSelector로부터 전달받아 캐싱해두는 현재 선택된 zone 정보
+    private ZoneData selectedZoneData;
 
     // 드롭다운에 들어갈 옵션 리스트
     private List<string> dateOptions = new List<string>();
@@ -62,7 +65,34 @@ public class ControlPanel : MonoBehaviour
         {
             selectGreeneryZoneButton.onClick.AddListener(OnSelectGreeneryZoneButtonClicked);
         }
+
+        // 옥상 녹화 시뮬레이션 시작 버튼 리스너 등록
+        if (startGreeneryButton != null)
+        {
+            startGreeneryButton.onClick.AddListener(OnStartGreeneryButtonClicked);
+        }
     }
+
+    private void OnEnable()
+    {
+        // 그리드(Zone) 선택 이벤트를 직접 구독하여 zoneId/temperature 캐싱
+        ZoneSelector.OnZoneSelected += HandleZoneSelected;
+    }
+
+    private void OnDisable()
+    {
+        ZoneSelector.OnZoneSelected -= HandleZoneSelected;
+    }
+
+    // 그리드가 선택될 때마다 호출되어 zone 정보를 캐싱
+    private void HandleZoneSelected(ZoneItem selectedItem)
+    {
+        if (selectedItem == null || selectedItem.data == null) return;
+
+        selectedZoneData = selectedItem.data;
+        Debug.Log($"[ControlPanel] 선택된 Zone 캐싱 완료 — ID: {selectedZoneData.zoneId}, 온도: {selectedZoneData.temperature}");
+    }
+
 
     private void SwitchTab(int tabIndex)
     {
@@ -144,4 +174,29 @@ public class ControlPanel : MonoBehaviour
         Debug.Log("[ControlPanel] 구역 선택 버튼 클릭");
         ZoneManager.Instance.EnableZoneSelection();
     }
+
+    // 옥상 녹화 시뮬레이션 시작 버튼을 눌렀을 때 실행될 함수
+    private void OnStartGreeneryButtonClicked()
+    {
+        // 1. 구역이 아직 선택되지 않았다면 진행 불가
+        if (selectedZoneData == null)
+        {
+            Debug.LogWarning("[ControlPanel] 먼저 구역(그리드)을 선택해주세요.");
+            return;
+        }
+
+        // 2. 슬라이더에서 목표 녹화율 값 읽기
+        float greeneryRate = selecGreeneryRatioSlider != null ? selecGreeneryRatioSlider.value : 0f;
+
+        Debug.Log($"[ControlPanel] 옥상 녹화 시뮬레이션 시작 — Zone: {selectedZoneData.zoneId}, " +
+            $"온도: {selectedZoneData.temperature}, 목표 녹화율: {greeneryRate}%");
+
+        // 3. 캐싱해둔 두 정보(zone + 녹화율)를 한 번에 SimulationController로 전달
+        SimulationController.Instance.StartGreenerySimulationForZone(
+            selectedZoneData.zoneId,
+            selectedZoneData.temperature,
+            greeneryRate
+        );
+    }
+
 }
