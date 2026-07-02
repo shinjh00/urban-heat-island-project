@@ -5,10 +5,9 @@ using UnityEngine;
 public class ResultPanel : MonoBehaviour
 {
     [Header("TMP UI Elements")]
-    [SerializeField] private TextMeshProUGUI GreeningRatio_txt;          // 목표 녹화율 (%)
-    [SerializeField] private TextMeshProUGUI GreeningCount_txt; // 녹화 적용된 건물 수 (개)
-    [SerializeField] private TextMeshProUGUI TotalGreeningArea_txt;  // 녹화 적용 면적 (㎡)
-    [SerializeField] private TextMeshProUGUI ExpectedEffect;    // 예상 감소 온도 (°C)
+    [SerializeField] private TextMeshProUGUI GreeningCount_txt; // 녹화 건물 개수 : 263개
+    [SerializeField] private TextMeshProUGUI TotalGreeningArea_txt;  // 녹화 적용 면적: (㎡) 총 18,750m
+    [SerializeField] private TextMeshProUGUI ExpectedEffect;    // 예상 효과: 15.7C → 15.54C (0.16C 감소)
 
     private void Start()
     {
@@ -34,22 +33,17 @@ public class ResultPanel : MonoBehaviour
         var controller = SimulationController.Instance;
         if (controller == null) return;
 
-        // 1. 목표 녹화율 (소수점 1자리 표기 예시)
-        if (GreeningRatio_txt != null)
-            GreeningRatio_txt.text = $"목표 녹화율 : {controller.greeneryRate:F1} %";
-
-        // 2. 녹화 건물 수
+        // 1. 녹화 건물 개수
         if (GreeningCount_txt != null)
-            GreeningCount_txt.text = $"녹화 건물 수: {controller.greeneryBuildingcount} 개";
+            GreeningCount_txt.text = $"{controller.greeneryBuildingcount} 개";
 
-        // 3. 녹화 적용 면적 (㎡)
+        // 2. 녹화 적용 면적 (㎡)
         if (TotalGreeningArea_txt != null)
-            TotalGreeningArea_txt.text = $"녹화 전용 면적(㎡) : {controller.expectedGreeneryArea:N1} ㎡"; // N1은 천단위 쉼표(,) 추가
+            TotalGreeningArea_txt.text = $"총 {controller.expectedGreeneryArea:#,##0.0} m²";
 
-        // 4. 예상 감소 온도
+        // 3. 예상 효과
         if (ExpectedEffect != null)
-            ExpectedEffect.text = $"예상 감소 온도 -{controller.expectedTempEffect:F2} °C" +
-                $"녹화 후 예상 온도 : {controller.greeneryAfterTemp:F2} °C";
+            ExpectedEffect.text = $"{controller.gridOriginalTemp:F2}°C -> {controller.greeneryAfterTemp:F2}°C ({controller.expectedTempEffect:F2}°C 감소)";
 
         Debug.Log("[ResultPanel] 시뮬레이션 결과 UI 갱신이 완료되었습니다.");
     }
@@ -59,7 +53,6 @@ public class ResultPanel : MonoBehaviour
     /// </summary>
     public void ClearDisplay()
     {
-        if (GreeningRatio_txt != null) GreeningRatio_txt.text = "- %";
         if (GreeningCount_txt != null) GreeningCount_txt.text = "- 개";
         if (TotalGreeningArea_txt != null) TotalGreeningArea_txt.text = "- ㎡";
         if (ExpectedEffect != null) ExpectedEffect.text = "- °C";
