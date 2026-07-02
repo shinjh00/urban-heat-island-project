@@ -1,3 +1,5 @@
+using System.Collections.Generic;  // [추가]
+using TMPro;                       // [추가]
 using UnityEngine;
 
 // 시뮬레이션 결과(greeneryStatus 문자열)에 따라 건물 색상을 입히는 클래스
@@ -7,6 +9,17 @@ public class GreeneryVisualizer : MonoBehaviour
     [Header("녹화 상태 색상")]
     [SerializeField] private Color top10Color = new Color(0.0f, 0.35f, 0.1f);      // Top10 → 진한 초록
     [SerializeField] private Color priorityColor = new Color(0.55f, 0.8f, 0.55f);  // 우선녹화건물 → 연한 초록
+
+    [Header("Top10 플로팅 라벨")]
+    [SerializeField] private float labelHeightOffset = 20f;   // 지붕 위 여유 높이(m)
+    [SerializeField] private float labelFontSize = 72f;
+    [SerializeField] private Color labelColor = Color.yellow;
+    [SerializeField] private Sprite tooltipSprite;             // 말풍선 스프라이트 드래그
+    [SerializeField] private Vector2 bubbleScale = new Vector2(10f, 10f);
+    [SerializeField] private float bubbleYOffset = 0f;         // 텍스트-말풍선 미세조정
+
+    // 생성된 라벨 추적용 (재시뮬레이션 시 정리)
+    private readonly List<GameObject> spawnedLabels = new List<GameObject>();
 
     private void OnEnable()
     {
@@ -23,6 +36,7 @@ public class GreeneryVisualizer : MonoBehaviour
     // 랭킹 리스트를 순회하며 greeneryStatus 값에 맞는 색을 건물에 적용
     private void ApplyGreeneryColors()
     {
+        ClearLabels();  // [추가] 이전 시뮬 라벨부터 정리
         var ranked = SimulationController.Instance.greeneryRankingBuildings;
         if (ranked == null || ranked.Count == 0)
         {
@@ -54,6 +68,7 @@ public class GreeneryVisualizer : MonoBehaviour
             {
                 case "GreeneryTop10":
                     mr.material.color = top10Color;
+                    SpawnLabel(obj, info, b);   // [추가] 지붕 위 라벨 생성
                     coloredCount++;
                     break;
 
@@ -67,5 +82,49 @@ public class GreeneryVisualizer : MonoBehaviour
         }
 
         Debug.Log($"[GreeneryVisualizer] 녹화 색상 적용 완료 — {coloredCount}개");
+    }
+
+    // Top10 건물 지붕 위에 말풍선 + 순위/점수 라벨 생성
+    private void SpawnLabel(GameObject buildingObj, BuildingInfo info, SimulationController.GreeneryRankingBuildings b)
+    {
+        float roofHeight = (info != null && info.data != null) ? info.data.height : 10f;
+
+        // 1) 순위/점수 텍스트 (3D TMP — Canvas 불필요)
+        GameObject labelObj = new GameObject($"Top10Label_{b.greeneryRank}");
+        TextMeshPro tmp = labelObj.AddComponent<TextMeshPro>();
+        tmp.text = $"#{b.greeneryRank}\n{b.greeneryScore:F1}";
+        tmp.fontSize = labelFontSize;
+        tmp.color = labelColor;
+        tmp.fontStyle = FontStyles.Bold;
+        tmp.alignment = TextAlignmentOptions.Center;
+        tmp.rectTransform.sizeDelta = new Vector2(100f, 40f);  // 잘림 방지
+
+        // 2) 말풍선 배경 (텍스트 뒤에 깔림)
+        if (tooltipSprite != null)
+        {
+            GameObject bubble = new GameObject("Bubble");
+            SpriteRenderer sr = bubble.AddComponent<SpriteRenderer>();
+            sr.sprite = tooltipSprite;
+            sr.flipY = true;  // ★ 꼬리 위 → 아래 (회전 대신 이 한 줄)
+
+            bubble.transform.SetParent(labelObj.transform, false);
+            bubble.transform.localPosition = new Vector3(0f, bubbleYOffset, 0.5f);  // +Z = 텍스트보다 뒤
+            bubble.transform.localScale = new Vector3(bubbleScale.x, bubbleScale.y, 1f);
+        }
+
+        // 3) 건물에 부착 + 항상 카메라를 향하게
+        labelObj.transform.SetParent(buildingObj.transform, false);
+        labelObj.transform.localPosition = Vector3.up * (roofHeight + labelHeightOffset);
+        labelObj.AddComponent<Billboard>();
+
+        spawnedLabels.Add(labelObj);
+    }
+
+    // 이전 시뮬레이션에서 생성한 라벨 전부 제거
+    private void ClearLabels()
+    {
+        foreach (GameObject label in spawnedLabels)
+            if (label != null) Destroy(label);
+        spawnedLabels.Clear();
     }
 }
