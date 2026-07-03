@@ -26,9 +26,9 @@ using UnityEngine;
 // 건물 녹화 상태
 public enum GreeneryState
 {
-    Normal,             // 기본 상태
-    GreeneryPriority,   // 녹화 대상 선정 (top10 제외)
-    GreeneryTop10       // 녹화 대상 중 top10 선정
+    Normal = 0,             // 기본 상태
+    GreeneryPriority = 1,   // 녹화 대상 선정 (top10 제외)
+    GreeneryTop10 = 2       // 녹화 대상 중 top10 선정
 }
 
 // 건물 데이터 모델

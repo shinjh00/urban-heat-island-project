@@ -36,7 +36,7 @@ public class GreeneryVisualizer : MonoBehaviour
     // 랭킹 리스트를 순회하며 greeneryStatus 값에 맞는 색을 건물에 적용
     private void ApplyGreeneryColors()
     {
-        ClearLabels();  // [추가] 이전 시뮬 라벨부터 정리
+        ClearLabels();  // 이전 시뮬 라벨부터 정리
         var ranked = SimulationController.Instance.greeneryRankingBuildings;
         if (ranked == null || ranked.Count == 0)
         {
@@ -54,30 +54,28 @@ public class GreeneryVisualizer : MonoBehaviour
 
             // 건물 클릭 시 정보패널에 표시할 수 있도록 BuildingInfo에 결과 기록
             BuildingInfo info = obj.GetComponent<BuildingInfo>();
-            if (info != null)
-            {
-                info.greeneryScore = b.greeneryScore;
-                info.greeneryRank = b.greeneryRank;
-            }
 
             MeshRenderer mr = obj.GetComponent<MeshRenderer>();
             if (mr == null) continue;
 
-            // greeneryStatus 문자열 값에 따라 색상 분기
+            // [구조 개선] greeneryStatus 문자열 값 대신 깔끔한 GreeneryState Enum 기준으로 분기 처리
             switch (b.greeneryStatus)
             {
-                case "GreeneryTop10":
+                case GreeneryState.GreeneryTop10:
                     mr.material.color = top10Color;
-                    SpawnLabel(obj, info, b);   // [추가] 지붕 위 라벨 생성
+                    SpawnLabel(obj, info, b);   // Top10 전용 지붕 위 플로팅 라벨 생성
                     coloredCount++;
                     break;
 
-                case "GreeneryPriority":
+                case GreeneryState.GreeneryPriority:
                     mr.material.color = priorityColor;
                     coloredCount++;
                     break;
 
-                    // "Normal"은 건드리지 않음 (기존 색 유지)
+                case GreeneryState.Normal:
+                default:
+                    // "Normal" 상태는 가공하지 않음 (건물의 원래 기본 색상 유지)
+                    break;
             }
         }
 

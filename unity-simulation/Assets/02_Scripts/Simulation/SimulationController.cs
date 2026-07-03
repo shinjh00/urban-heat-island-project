@@ -35,7 +35,7 @@ public class SimulationController : MonoBehaviour
         public string buildingID;      // 건물 고유 ID
         public float areaSize;         // 건물 면적
         public float greeneryScore;    // 계산된 녹화 점수
-        public string greeneryStatus;  // 녹화 상태 (예: "greeneryTop10", "greeneryPriority", "normal" 등)
+        public GreeneryState greeneryStatus;  // 상태 문자열에서 Enum 형식으로 전환
     }
 
     // 계산 요청에 필요한 데이터를 한 번에 담아 Calculator로 보내기 위한 통신용 구조체
@@ -82,6 +82,18 @@ public class SimulationController : MonoBehaviour
     private int lastCheckCount = -1;             // 직전 프레임에 확인한 건물 수
     private Coroutine checkCompleteCoroutine;    // 스폰 완료 감지용 코루틴 저장소
 
+    // 모든 Building 스폰 이후 데이터 수집 리스트
+    [Header("Spawned Buildings Data")]
+    public List<SpawnedAllBuildings> spawnedAllBuildings = new List<SpawnedAllBuildings>();
+
+    [Header("Processed Greenery Data")]
+    public List<GreeneryRankingBuildings> greeneryRankingBuildings = new List<GreeneryRankingBuildings>();
+
+    // [중요 추가] 스폰된 빌딩들의 BuildingInfo 컴포넌트 실시간 캐싱 딕셔너리
+    // 씬 탐색 병목 현상(FindObjectsOfType)을 방지하고, ID 기반 O(1) 초고속 대입이 가능하게 합니다.
+    private Dictionary<string, BuildingInfo> _buildingInfoCache = new Dictionary<string, BuildingInfo>();
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this) 
@@ -91,15 +103,6 @@ public class SimulationController : MonoBehaviour
         }
         Instance = this;
     }
-
-    // BuildingManager에서 스폰된 건물들의 시뮬레이션 데이터 리스트
-    [Header("Spawned Buildings Data")]
-    public List<SpawnedAllBuildings> spawnedAllBuildings = new List<SpawnedAllBuildings>();
-
-    [Header("Processed Greenery Data")]
-    // 조건에 따라 정렬되어 최종 저장될 리스트
-    public List<GreeneryRankingBuildings> greeneryRankingBuildings = new List<GreeneryRankingBuildings>();
-
 
     private void Start()
     {
@@ -140,6 +143,13 @@ public class SimulationController : MonoBehaviour
         {
             // zone 밖 건물은 zoneId가 null일 수 있으므로 빈 문자열로 안전하게 처리
             newBuilding.zoneID = info.zoneId ?? string.Empty;
+
+            // [핵심] BuildingID에 해당하는 컴포넌트를 딕셔너리에 캐싱해 둡니다.
+            if (!_buildingInfoCache.ContainsKey(data.id))
+            {
+                _buildingInfoCache.Add(data.id, info);
+            }
+
         }
         else
         {
@@ -150,8 +160,6 @@ public class SimulationController : MonoBehaviour
         newBuilding.areaSize = (float)data.areaSize; // 원시 데이터가 double일 경우 캐스팅
         newBuilding.height = (float)data.height;
         newBuilding.floors = data.floors;
-
-        // 건물의 중심점 좌표 대입
         newBuilding.buildingCenterLon = data.lon;
         newBuilding.buildingCenterLat = data.lat;
 
@@ -169,6 +177,17 @@ public class SimulationController : MonoBehaviour
     public void SetSpawnedBuildingsList(List<SpawnedAllBuildings> buildingsData)
     {
         spawnedAllBuildings = buildingsData;
+
+        // 데이터 강제 인입 시에는 씬 내 컴포넌트들을 재탐색하여 캐시를 다시 구성합니다.
+        _buildingInfoCache.Clear();
+        BuildingInfo[] allInfos = FindObjectsByType<BuildingInfo>(FindObjectsSortMode.None); foreach (var info in allInfos)
+        {
+            if (info.data != null && !string.IsNullOrEmpty(info.data.id))
+            {
+                _buildingInfoCache[info.data.id] = info;
+            }
+        }
+
         Debug.Log($"[SimulationController] 총 {spawnedAllBuildings.Count}개의 건물 데이터가 성공적으로 로드되었습니다.");
     }
 
@@ -278,83 +297,37 @@ public class SimulationController : MonoBehaviour
         // 4. Calculator가 랭킹/상태 계산까지 완료한 리스트를 그대로 사용
         greeneryRankingBuildings = result.rankedBuildings;
 
-        // 녹화 적용된(=Priority 이상) 건물 수 카운트
+        // 1. 녹화 적용된(= Priority 이상) 건물 카운트 집계
         greeneryBuildingcount = greeneryRankingBuildings
-            .Count(b => b.greeneryStatus == "GreeneryPriority" || b.greeneryStatus == "GreeneryTop10");
+            .Count(b => b.greeneryStatus == GreeneryState.GreeneryPriority || b.greeneryStatus == GreeneryState.GreeneryTop10);
 
+
+        // 2. [가장 중요한 변경사항] 씬 내부의 BuildingInfo 실시간 컴포넌트 연동 업데이트
+        // 이 루프를 통해 랭킹 리스트의 연산 값이 실제 씬 컴포넌트에 반영됩니다.
+        foreach (var rData in greeneryRankingBuildings)
+        {
+            if (_buildingInfoCache.TryGetValue(rData.buildingID, out BuildingInfo info))
+            {
+                // 실시간 계산 결과 주입
+                info.greeneryScore = rData.greeneryScore;
+                info.greeneryRank = rData.greeneryRank;
+                info.greeneryStatus = rData.greeneryStatus; // Enum 형 데이터 0, 1, 2 상태값 자동 주입
+
+                // 반경 내 인접 건물 개수 동기화
+                if (result.radiusCounts.TryGetValue(rData.buildingID, out int rCount))
+                {
+                    info.radiusBuildingCount = rCount;
+                }
+            }
+        }
 
 
         Debug.Log($"[SimulationController] {currentTargetZoneID}번 구역 랭킹 정렬 완료 " +
-            $"(총 {greeneryRankingBuildings.Count}개, 녹화 적용 {greeneryBuildingcount}개))");
+            $"(총 {greeneryRankingBuildings.Count}개, 녹화 적용 {greeneryBuildingcount}개), 개별 BuildingInfo 컴포넌트 갱신 성공)");
 
         //데이터 세팅이 끝난 후, 결과 패널(UI)에 전달
         OnResultDataUpdated?.Invoke();
 
     }
-
-
-
-    // 이하는 기존 코드(건물 선택시 그리드의 모든 건물 정보 가져오는 함수는 굳이 필요 없을 것 같음)
-
-
-    /*
-             1. 시뮬레이션 시작 과정 전체
-        1. 시뮬레이션 준비 버튼 누름
-        2. 사용할 그리드 내에 있는 건물 선택
-            1. debug.Log(그리드에 해당하는 건물을 선택해주세요) (왼쪽 아래 창)
-            2. 이 건물 선택시 해당 그리드 안에 있는 모든 건물 잠깐 blink
-            3. 해당 지역을 선택했습니다.
-        3. 목표 녹화율 받음 (슬라이더)
-            1. 목표 녹화율 n% 지정되었습니다
-        4. 시뮬레이션 시작 버튼 누름
-    2. 그리드 내에 건물 정보 받아오기
-        1. 받아오는 정보
-            1. 그리드 관련 정보
-                1. 온도정보
-            2. 건물 관련 정보
-                1. 옥상면적
-                2. 건물 높이
-    3. 계산할 정보
-        1. 목표 녹화율에 따른 목표 녹화 면적 계산
-            1. 그리드 내에 있는 모든 건물의 옥상 면적 합
-            2. 이 합에다가 목표 녹화율 곱해서 목표 녹화 면적 계산
-        2. 반경 내 건물 수 계산
-            1. 건물 별 중심점으로부터 250m 반경 내 건물 수
-        3. 격자 내부에 있는 건물들 점수 계산
-            1. 우선순위 함수 적용
-            2. 각 건물별 우선순위 점수 할당
-        4. 높은 점수 순서대로 리스트 제작
-        5. 리스트 토대로 차례대로 목표 녹화 면적 까지 더함
-        6. 목표 녹화 면적 충족시 계산 과정 종료
-    4. Top10만 우선녹화건물 색상 적용(진한 초록)
-        1. Top10은 플로팅 패널로 표기
-            1. 보는 시점 따라서 따라오는걸로
-            2. 내용
-                1. 우선순위 top10 순위 나옴
-                2. 우선녹화점수 표기
-        2. 우선녹화건물은 빌딩 정보에 상태 값 할당(enum 우선녹화건물)
-        3. 해당 건물 클릭시 정보패널에 표기
-    5. 시뮬레이션 결과 출력(오른쪽 하단)
-        1. 내용
-            1. 목표 녹화율
-            2. 녹화 건물 수
-            3. 녹화 적용 면적
-                1. 목표 녹화 면적 계산 값 (3-a-ii)
-            4. 예상 감소 온도
-                1. 녹화율에 비례한 온도감소 정도 표시
-                2. 온도감소 정도는 4~6C (가정)
-                3. 녹화율 (20%~80%)
-                4. ex) 녹화율 80% 시 → 온도감소 6도 / 녹화율 50% 시 → 온도감소 5도
-            5. 녹화 전 기존온도
-                1. 그리드 온도
-            6. 녹화 후 예상감소온도
-                1. 그리드 온도 - 예상 효과 온도
-    6. 시뮬레이션 종료 메세지(왼쪽 하단)
-        1. debug.log(시뮬레이션이 종료되었습니다)
-     */
-
-
-
-
 
 }

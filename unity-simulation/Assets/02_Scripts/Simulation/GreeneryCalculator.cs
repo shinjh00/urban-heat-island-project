@@ -211,7 +211,7 @@ public class GreeneryCalculator : MonoBehaviour
             if (buildingScores.ContainsKey(bSimData.buildingID))
                 gData.greeneryScore = buildingScores[bSimData.buildingID];
 
-            gData.greeneryStatus = "Normal";
+            gData.greeneryStatus = GreeneryState.Normal; // 기존 string에서 Enum으로 매핑 변경;
             gData.greeneryRank = 0;
 
             zoneBuildings.Add(gData);
@@ -239,7 +239,7 @@ public class GreeneryCalculator : MonoBehaviour
 
             SimulationController.GreeneryRankingBuildings updatedData = rankedZoneBuildings[i];
             accumulatedArea += updatedData.areaSize;
-            updatedData.greeneryStatus = "GreeneryPriority";
+            updatedData.greeneryStatus = GreeneryState.GreeneryPriority; // Enum 대입
             rankedZoneBuildings[i] = updatedData;
             priorityAssignCount++;
         }
@@ -255,7 +255,7 @@ public class GreeneryCalculator : MonoBehaviour
 
             if (updatedData.greeneryRank >= 1 && updatedData.greeneryRank <= 10)
             {
-                updatedData.greeneryStatus = "GreeneryTop10";
+                updatedData.greeneryStatus = GreeneryState.GreeneryTop10; // Enum 대입
                 rankedZoneBuildings[i] = updatedData;
             }
         }

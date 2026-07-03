@@ -23,5 +23,5 @@ public class BuildingInfo : MonoBehaviour
     public int greeneryRank;
 
     // 건물 녹화 상태
-    public GreeneryState greeneryStatus;
+    public GreeneryState greeneryStatus = GreeneryState.Normal;
 }
