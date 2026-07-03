@@ -6,13 +6,7 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
 
     [Header("Building Info Panel")]
-    public GameObject infoPanel;
-    public TMP_Text textArea1;
-    public TMP_Text textArea2;
-    public TMP_Text textArea3;
-    public TMP_Text textArea4;
-    public TMP_Text textArea5;
-
+    public BuildingInfoPanel buildingInfoPanel;
 
     // 시각화 드롭다운에서 선택된 날짜를 전역적으로 기억할 변수
     public string CurrentSelectedDate { get; private set; }
@@ -50,37 +44,27 @@ public class UIManager : MonoBehaviour
     public void ShowBuildingInfo(BuildingInfo info)
     {
         currentBuildingInfo = info;
-
-        if (infoPanel != null)
-            ShowPanel(infoPanel);
-
-        if (textArea1 != null)
-            textArea1.text = "건물ID : " + info.data.id;
-        if (textArea2 != null)
-            textArea2.text = "면적 : " + info.data.areaSize;
-        if (textArea3 != null)
-            textArea3.text = "높이 : " + info.data.height;
-        if (textArea4 != null)
-            textArea4.text = "ZoneID : " + info.zoneId;
-        if (textArea5 != null)
-            textArea5.text = "온도 : " + info.temperature;
-
-        Debug.Log($"[UIManager] BuildingInfo 출력 {info.data.id} {info.zoneId}");
+        // 분리된 패널 스크립트에게 UI 갱신 및 오픈 처리를 위임합니다.
+        if (buildingInfoPanel != null)
+        {
+            buildingInfoPanel.Show(info);
+        }
+        else
+        {
+            Debug.LogWarning("[UIManager] buildingInfoPanel이 할당되지 않았습니다.");
+        }
     }
 
     // BuildingSelector에서 HandleBuildingDeselected() 실행 시 호출
     public void HideBuildingInfo()
     {
-        if (currentBuildingInfo != null)
-            currentBuildingInfo = null;
+        currentBuildingInfo = null;
 
-        if (textArea1 != null) textArea1.text = string.Empty;
-        if (textArea2 != null) textArea2.text = string.Empty;
-        if (textArea3 != null) textArea3.text = string.Empty;
-        if (textArea4 != null) textArea4.text = string.Empty;
-        if (textArea5 != null) textArea5.text = string.Empty;
-
-        HidePanel(infoPanel);
+        // 패널 닫기 및 초기화 위임
+        if (buildingInfoPanel != null)
+        {
+            buildingInfoPanel.Hide();
+        }
     }
     #endregion
 
