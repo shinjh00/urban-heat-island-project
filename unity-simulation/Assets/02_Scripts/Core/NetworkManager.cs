@@ -88,11 +88,11 @@ public class NetworkManager : MonoBehaviour
     // ControlPanel.cs에서 시각화 시작 버튼 클릭 시 호출됨
     public void RefreshDecalData()
     {
+        Debug.Log("[NetworkManager] 시각화 시작. 서버에 데이터 요청을 보냅니다.");
         if (currentDecalCoroutine != null)
         {
             StopCoroutine(currentDecalCoroutine);
         }
-
         currentDecalCoroutine = StartCoroutine(FetchPngDecalImage());
     }
 
@@ -164,6 +164,8 @@ public class NetworkManager : MonoBehaviour
             // 셰이더 그래프 내부 아이디 "Base_Map"과 바인딩
             runtimeMaterial.SetTexture("Base_Map", newTexture);
 
+            mapoDecalProjector.material = runtimeMaterial; 
+
             // Decal Projector를 껐다 켜서 화면 갱신 유도 (CPU 연산 최소화)
             if (mapoDecalProjector != null)
             {
@@ -185,6 +187,14 @@ public class NetworkManager : MonoBehaviour
     public IEnumerator FetchGeoJsonData(Action<string> onResult)
     {
         // 없으면 6월껄로 , 있으면 그걸로
+        apiTargetTime = UIManager.Instance.CurrentSelectedDate;
+
+        //if (apiTargetTime == null)
+        //{
+
+        //}
+
+
         string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm={apiTargetTime}";
         UnityWebRequest request = UnityWebRequest.Get(requestUrl);
 
