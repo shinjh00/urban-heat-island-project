@@ -16,8 +16,9 @@ public class BuildingInfo : MonoBehaviour
     // 반경 0m 내에 있는 건물 수
     public int radiusBuildingCount;
 
-    // 옥상 녹화 점수
+    // TODO: [피드백] BuildingData.cs 피드백 같이 참고하여 수정하기
     public float greeneryScore;
+
 
     // 옥상 녹화 우선순위
     public int greeneryRank;

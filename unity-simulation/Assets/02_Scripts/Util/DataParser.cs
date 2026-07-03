@@ -172,6 +172,15 @@ public class DataParser
             {
                 JToken props = feat["properties"];
                 JToken geom = feat["geometry"];
+
+                // TODO: [피드백/크리티컬] 여기 return null 은  위험
+                // 지금 이 코드는 foreach 안에서 "이 feature 하나가 이상하면" return null로
+                // 함수 전체를 끝내버려요. 그러면 지금까지 zoneList에 잘 모아둔 다른 정상 zone들까지
+                // 전부 버려지고 호출한 쪽은 null을 받음
+                // 서울시 전체 그리드 GeoJSON을 파싱하는 거라 수백~수천 개 feature 중 하나만 이상해도
+                // 그리드/온도 데이터가 통째로 안 불러와지는데, 에러 로그도 안 남아서 원인찾기도 힘들수있음.
+                // 바로 아래 catch 블록은 continue로 잘 처리하고 있으니, 이 두 줄도 return null 대신
+                // continue로 바꿔서  건너뛰기가 되도록 수정
                 if (props == null || geom == null) return null;
                 if (geom["type"]?.ToString() != "Polygon") return null;
 

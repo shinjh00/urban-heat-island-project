@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+#if UNITY_EDITOR
 using static UnityEditor.Progress;
+#endif
 
 // 구 영역을 그리드로 분할해서 지도 위에 zone 영역 생성
 public class ZoneGenerator : MonoBehaviour

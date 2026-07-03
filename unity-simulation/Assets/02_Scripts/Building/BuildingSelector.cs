@@ -98,12 +98,20 @@ public class BuildingSelector : MonoBehaviour
         selectedRenderer = obj.GetComponent<MeshRenderer>();
         if (selectedRenderer != null)
         {
+
+
+            // TODO: [피드백] renderer.material 로 직접 사용하면 머티리얼 객체가 새로만들어짐.
+            // 우리프로젝트에서는 건물 선택, 해제가 반복될 것이므로 MeshRenderer.SetPropertyBlock(MaterialPropertyBlock)
+            // 을 사용하면 더좋음. 머티리얼을 복제하지않고 색상만 바꾸는 방식이됨. 
+            // 아래 RemoveHighlight 함수에서 originalColor 바꿀때도 propertyBlock.Clear()
+
+
             // 3. 원래 색상 저장 후 변경
             originalColor = selectedRenderer.material.color;
             selectedRenderer.material.color = highlightColor;
         }
 
-         UIManager.Instance.ShowBuildingInfo(info);
+        UIManager.Instance.ShowBuildingInfo(info);
     }
 
     private void HandleBuildingDeselected()
@@ -122,6 +130,11 @@ public class BuildingSelector : MonoBehaviour
         }
     }
 
+
+    // TODO: [피드백] 사용안하는 아래코드들은 모두 지우기 
+
+
+    ///
     //// 매서드 추가부분
     //// '구역 선택' 버튼이 호출 (UI 버튼 OnClick 에 연결)
     //public void EnableZoneSelection()

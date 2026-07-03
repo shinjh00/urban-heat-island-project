@@ -24,7 +24,7 @@ public class BuildingManager : MonoBehaviour
     public int maxBuildings = 10000;
     // 몇초마다 카메라 위치를 확인하여 스폰/제거를 반복할지
     public float checkInterval = 5f;
-    
+
     [Header("GeoJSON")]
     // StreamingAssets 폴더에 있는 GeoJSON 파일 이름
     public string geoJsonFileName = "mapo_building_final.geojson";
@@ -55,6 +55,7 @@ public class BuildingManager : MonoBehaviour
 
     // DataParser 가 반환한 전체 건물 데이터 리스트
     private List<BuildingData> buildingDataList = new List<BuildingData>();
+
 
     // 카메라 현재 위경도
     private double camLon, camLat;
@@ -208,6 +209,7 @@ public class BuildingManager : MonoBehaviour
             {
                 toRemove.Add(kvp.Key); continue;
             }
+
             if (GetDistanceMeters(camLat, camLon, data.lat, data.lon) > activationRadius * 1.5f)
             {
                 Destroy(kvp.Value);
@@ -302,6 +304,10 @@ public class BuildingManager : MonoBehaviour
     #region ``시뮬레이션 중 그리드 선택 관련 함수 (Zone)``
     public void FocusOnGrid(string zoneId, double[,] zonePolygon, float temp, double centerLon, double centerLat)
     {
+        // TODO: [피드백/크리티컬] 이 함수가 중복 호출되면(그리드를 두 번 빠르게 클릭하는 등) LoadGridBuildings() 코루틴이
+        // 동시에 여러 개 돌면서 같은 activeBuildings를 같이 건드리고, ZoneClassifier.ClassifyAndApplyZone도 중복 실행돼요.
+        // 이러면 온도/랭킹 계산 결과가 실제로 틀어져서 시뮬레이션 결과 자체가 잘못 나올 수 있음   
+        // 고치는 법: 함수 맨 앞에 "if (gridMode) return;" 같은 가드 한 줄만 추가해도 최소한의 방어가능
         gridMode = true;
         spawnEnabled = true;
         zoneCenterLon = centerLon;
@@ -331,7 +337,10 @@ public class BuildingManager : MonoBehaviour
 
         Debug.Log($"[BuildingManager] 그리드 건물 로드 완료 — {count}개");
 
-        // 건물 로드 끝났으니 그리드 판 정리
+        // TODO: [피드백/크리티컬] ZoneManager.Instance나 zoneGenerator가 null이면 여기서 NullReferenceException이 나서
+        // 이 코루틴이 그대로 멈춰버려요. 그러면 바로 아래에 있는 ZoneClassifier 호출과 OnBuildingZoneAssigned 이벤트 발행까지
+        // 전부 실행이 안될 수 있으니 
+        // 고치는 법: if (ZoneManager.Instance != null && ZoneManager.Instance.zoneGenerator != null) 처럼 사용
         ZoneManager.Instance.zoneGenerator.HideGrids();
 
         // 스폰 루프가 끝날 때까지 대기 처리가 보장된 지점 (여기서 yield return이 모두 완료됨)

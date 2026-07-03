@@ -642,7 +642,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4281479935
   m_fontColor: {r: 1, g: 0.19607843, b: 0.19607843, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -6807,7 +6807,7 @@ MonoBehaviour:
   - {fileID: 5730157170540986393}
   dateDropdown: {fileID: 2029020186852196971}
   visualizationStartButton: {fileID: 4998615410574788155}
-  selectGreeneryZoneText: {fileID: 0}
+  selectGreeneryZoneText: {fileID: 6233153406588154232}
   selectGreeneryZoneButton: {fileID: 7268393950069820408}
   currentRatioText: {fileID: 2205421884052123962}
   selecGreeneryRatioSlider: {fileID: 6397450755592893019}
@@ -7102,7 +7102,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 15, y: 0}
-  m_SizeDelta: {x: 15, y: 35}
+  m_SizeDelta: {x: 10, y: 35}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6564311008553351018
 CanvasRenderer:
@@ -9694,7 +9694,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &8646352958641840328
 GameObject:
   m_ObjectHideFlags: 0
