@@ -92,12 +92,20 @@ public class GreeneryVisualizer : MonoBehaviour
         // 1) 순위/점수 텍스트 (3D TMP — Canvas 불필요)
         GameObject labelObj = new GameObject($"Top10Label_{b.greeneryRank}");
         TextMeshPro tmp = labelObj.AddComponent<TextMeshPro>();
-        tmp.text = $"#{b.greeneryRank}\n{b.greeneryScore:F1}";
+        tmp.text = $"<size=60%>Rank</size> <color=#1E8449><b>{b.greeneryRank}</b></color>\n" +
+            $"<size=60%>Score</size> <b>{b.greeneryScore:F1}</b>";
         tmp.fontSize = labelFontSize;
         tmp.color = labelColor;
         tmp.fontStyle = FontStyles.Bold;
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.rectTransform.sizeDelta = new Vector2(100f, 40f);  // 잘림 방지
+        tmp.GetComponent<MeshRenderer>().sortingOrder = 10;  // [추가] 항상 말풍선 위에
+
+
+        // [추가] 순위 기반 크기 가중치 (1위 = 1.3배, 10위 = 0.8배)
+        float w = 1f - (b.greeneryRank - 1) / 9f;
+        labelObj.transform.localScale = Vector3.one * Mathf.Lerp(0.8f, 1.3f, w);
+
 
         // 2) 말풍선 배경 (텍스트 뒤에 깔림)
         if (tooltipSprite != null)
@@ -106,6 +114,7 @@ public class GreeneryVisualizer : MonoBehaviour
             SpriteRenderer sr = bubble.AddComponent<SpriteRenderer>();
             sr.sprite = tooltipSprite;
             sr.flipY = true;  // ★ 꼬리 위 → 아래 (회전 대신 이 한 줄)
+            sr.sortingOrder = 9;   // [추가] 항상 텍스트 아래에
 
             bubble.transform.SetParent(labelObj.transform, false);
             bubble.transform.localPosition = new Vector3(0f, bubbleYOffset, 0.5f);  // +Z = 텍스트보다 뒤
@@ -127,4 +136,8 @@ public class GreeneryVisualizer : MonoBehaviour
             if (label != null) Destroy(label);
         spawnedLabels.Clear();
     }
+
+
+
+
 }
