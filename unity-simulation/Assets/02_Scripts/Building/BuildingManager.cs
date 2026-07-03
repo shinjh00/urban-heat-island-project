@@ -304,12 +304,12 @@ public class BuildingManager : MonoBehaviour
     #region ``시뮬레이션 중 그리드 선택 관련 함수 (Zone)``
     public void FocusOnGrid(string zoneId, double[,] zonePolygon, float temp, double centerLon, double centerLat)
     {
-        // [가드] 이미 그리드 로드가 진행됐으면 중복 진입 차단 (중심점 덮어쓰기/분류기 중복 실행 방지)
-        if (gridMode)
-        {
-            Debug.LogWarning($"[BuildingManager] 이미 그리드 로드 상태 — 중복 호출 무시 (요청 Zone: {zoneId})");
-            return;
-        }
+        //// [가드] 이미 그리드 로드가 진행됐으면 중복 진입 차단 (중심점 덮어쓰기/분류기 중복 실행 방지)
+        //if (gridMode)
+        //{
+        //    Debug.LogWarning($"[BuildingManager] 이미 그리드 로드 상태 — 중복 호출 무시 (요청 Zone: {zoneId})");
+        //    return;
+        //}
         gridMode = true;
         spawnEnabled = true;
         zoneCenterLon = centerLon;

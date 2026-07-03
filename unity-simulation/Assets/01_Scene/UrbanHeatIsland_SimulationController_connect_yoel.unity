@@ -575,6 +575,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GreeneryVisualizer
   top10Color: {r: 0, g: 0.35, b: 0.1, a: 1}
   priorityColor: {r: 0.55, g: 0.8, b: 0.55, a: 1}
+  labelHeightOffset: 20
+  labelFontSize: 72
+  labelColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  tooltipSprite: {fileID: 0}
+  bubbleScale: {x: 10, y: 10}
+  bubbleYOffset: 0
 --- !u!1 &1061587941
 GameObject:
   m_ObjectHideFlags: 0
@@ -963,7 +969,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45326fca2534a8745a6133835f991580, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingSelector
-  highlightColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  highlightColor: {r: 0, g: 0, b: 1, a: 1}
   greeneryVisualizer: {fileID: 0}
   zoneSelectionMode: 0
   selectedZoneBuildings: []
@@ -3173,11 +3179,11 @@ MonoBehaviour:
   - {fileID: 8563187991055154674}
   dateDropdown: {fileID: 3592904976028155093}
   visualizationStartButton: {fileID: 6980167633216495569}
+  selectGreeneryZoneText: {fileID: 0}
   selectGreeneryZoneButton: {fileID: 6787862859022626781}
   currentRatioText: {fileID: 2715787635178921680}
   selecGreeneryRatioSlider: {fileID: 7457388421355989522}
   startGreeneryButton: {fileID: 691525490378470793}
-  installShadeButton: {fileID: 0}
 --- !u!114 &2272289370049693459
 MonoBehaviour:
   m_ObjectHideFlags: 0
