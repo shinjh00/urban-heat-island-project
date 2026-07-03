@@ -16,9 +16,11 @@ public class ControlPanel : MonoBehaviour
 
     [Header("시각화 탭")]
     [SerializeField]
-    private TMP_Dropdown dateDropdown;
+    private TMP_Dropdown dateDropdown;          // 날짜 선택 드롭다운
     [SerializeField]
-    private Button visualizationStartButton;
+    private Button visualizationResetButton;    // 시각화 데칼 초기화 버튼
+    [SerializeField]
+    private Button visualizationStartButton;    // 시각화 시작 버튼
 
     [Header("옥상 녹화 시뮬레이션 탭")]
     [SerializeField]
@@ -31,6 +33,7 @@ public class ControlPanel : MonoBehaviour
     private Slider selecGreeneryRatioSlider;    // 목표 녹화율 설정 슬라이더
     [SerializeField]
     private Button startGreeneryButton;         // 시뮬레이션 시작 버튼
+    
 
     // ZoneSelector로부터 전달받아 캐싱해두는 현재 선택된 zone 정보
     private ZoneData selectedZoneData;
@@ -38,7 +41,12 @@ public class ControlPanel : MonoBehaviour
     // 드롭다운에 들어갈 옵션 리스트
     private List<string> dateOptions = new List<string>();
 
-    private bool isDateSelected;
+    private bool isDateSelected = false;    // 시각화 날짜 선택 여부
+    private bool isVisualizing = false;     // 시각화 진행 여부
+    private bool isZoneSelected = false;    // 시뮬 구역 선택 여부
+    private bool isRatioSelected = false;   // 시뮬 녹화율 선택 여부
+    private bool isSimulating = false;      // 시뮬 진행 여부
+
 
 
     void Start()
@@ -63,6 +71,13 @@ public class ControlPanel : MonoBehaviour
         if (visualizationStartButton != null)
         {
             visualizationStartButton.onClick.AddListener(OnVisualizationStartButtonClicked);
+            visualizationResetButton.gameObject.SetActive(false);
+        }
+
+        // 시각화 데칼 초기화 버튼 리스너 등록
+        if (visualizationResetButton != null)
+        {
+            visualizationResetButton.onClick.AddListener(OnClickResetButton);
         }
 
         // 옥상 녹화 시뮬레이션 시작 버튼 리스너 등록
@@ -76,6 +91,12 @@ public class ControlPanel : MonoBehaviour
         {
             startGreeneryButton.onClick.AddListener(OnStartGreeneryButtonClicked);
         }
+    }
+
+    private void OnEnable()
+    {
+        // 그리드(Zone) 선택 이벤트를 직접 구독하여 zoneId/temperature 캐싱
+        ZoneSelector.OnZoneSelected += HandleZoneSelected;
 
         // 슬라이더 값이 바뀔 때 실시간으로 텍스트 업데이트하는 리스너
         if (selecGreeneryRatioSlider != null)
@@ -84,15 +105,14 @@ public class ControlPanel : MonoBehaviour
         }
     }
 
-    private void OnEnable()
-    {
-        // 그리드(Zone) 선택 이벤트를 직접 구독하여 zoneId/temperature 캐싱
-        ZoneSelector.OnZoneSelected += HandleZoneSelected;
-    }
-
     private void OnDisable()
     {
         ZoneSelector.OnZoneSelected -= HandleZoneSelected;
+
+        if (selecGreeneryRatioSlider != null)
+        {
+            selecGreeneryRatioSlider.onValueChanged.RemoveListener(UpdatePercentValue);
+        }
     }
 
 
@@ -113,7 +133,7 @@ public class ControlPanel : MonoBehaviour
                 if (i == tabIndex)
                     btnImage.color = new Color(1.0f, 1.0f, 1.0f, 0.98f);
                 else
-                    btnImage.color = new Color(1.0f, 1.0f, 1.0f, 0.90f);
+                    btnImage.color = new Color(1.0f, 1.0f, 1.0f, 0.80f);
             }
         }
     }
@@ -126,19 +146,12 @@ public class ControlPanel : MonoBehaviour
 
         dateDropdown.ClearOptions();
         dateOptions.Clear();
-        isDateSelected = false;
 
         // 추가할 글자들을 담을 리스트
         DateTime currentTime = new DateTime(2026, 6, 1);
         DateTime endTime = new DateTime(2025, 1, 1);
         while (currentTime >= endTime)
         {
-            //// "2026년 06월" 형태로 문자열 만들기
-            //string dateText = currentTime.ToString("yyyy년 MM월");
-            //dateOptions.Add(dateText);
-            //// 한 달 빼기
-            //currentTime = currentTime.AddMonths(-1);
-
             // "2026년 06월" 형태로 문자열 만들기
             dateOptions.Add(currentTime.ToString("yyyy년 MM월"));
             // 한 달 빼기
@@ -147,8 +160,9 @@ public class ControlPanel : MonoBehaviour
 
         // 생성한 리스트를 드롭다운에 넣기
         dateDropdown.AddOptions(dateOptions);
-        dateDropdown.value = 0;  // 0번 인덱스를 default로
         dateDropdown.RefreshShownValue();  // 화면 갱신
+        dateDropdown.captionText.text = "년/월 선택";
+        isDateSelected = false;
 
         // 드롭다운 리스너 연결
         dateDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
@@ -157,9 +171,10 @@ public class ControlPanel : MonoBehaviour
     // 드롭다운 아이템을 선택했을 때 실행될 기능
     private void OnDropdownValueChanged(int index)  // isDateSelected
     {
-        if (index == 0) return;
-
         isDateSelected = true;
+
+        if (isVisualizing)
+            visualizationStartButton.interactable = true;
 
         // dateDropdown.options[index].text로 선택한 "2026년 06월" 글자를 가져옴
         string originalText = dateDropdown.options[index].text;
@@ -195,20 +210,33 @@ public class ControlPanel : MonoBehaviour
 
 
     #region `` 버튼 클릭 리스너 ``
+
     // 시각화 시작 버튼을 눌렀을 때 실행될 함수
     private void OnVisualizationStartButtonClicked()
     {
         // 날짜를 아직 한 번도 선택 안 했다면 서버 요청 블로킹
         if (!isDateSelected)
         {
-            // 왼쪽위에 알림 텍스트 출력
-            Debug.LogWarning("[ControlPanel] 날짜를 먼저 선택해 주세요.");
+            UIManager.Instance.ShowWarningMessage("날짜를 선택해 주세요.");
             return;
         }
 
-        Debug.Log("[NetworkManager] 시각화 시작. 서버에 데이터 요청을 보냅니다.");
+        UIManager.Instance.screenBlockingPanel.SetActive(true);
+
         // NetworkManager에게 현재 선택된 날짜로 새로고침하도록 요청
         NetworkManager.Instance.RefreshDecalData();
+        isVisualizing = true;
+        visualizationStartButton.interactable = false;
+        visualizationResetButton.gameObject.SetActive(true);
+    }
+
+    // 시각화 데칼 초기화 버튼을 눌렀을 때 실행될 함수
+    public void OnClickResetButton()
+    {
+        NetworkManager.Instance.ResetDecalData();
+        visualizationResetButton.gameObject.SetActive(false);
+        visualizationStartButton.interactable = true;
+        isVisualizing = false;
     }
 
     // 옥상 녹화 구역 선택 버튼을 눌렀을 때 실행될 함수
@@ -223,12 +251,15 @@ public class ControlPanel : MonoBehaviour
         // 1. 구역이 아직 선택되지 않았다면 진행 불가
         if (selectedZoneData == null)
         {
+            // ========== [TODO]: WarningMsgPanel에 안내메세지 출력 ==========
             Debug.LogWarning("[ControlPanel] 먼저 구역(그리드)을 선택해주세요.");
             return;
         }
 
         // 2. 슬라이더에서 목표 녹화율 값 읽기
         float greeneryRate = selecGreeneryRatioSlider != null ? selecGreeneryRatioSlider.value : 0f;
+
+        // ========== [TODO]: WarningMsgPanel에 안내메세지 출력 ==========
 
         Debug.Log($"[ControlPanel] 옥상 녹화 시뮬레이션 시작 — Zone: {selectedZoneData.zoneId}, " +
             $"온도: {selectedZoneData.temperature}, 목표 녹화율: {greeneryRate}%");
@@ -243,12 +274,8 @@ public class ControlPanel : MonoBehaviour
     #endregion
 
 
-    private void OnDestroy()
-    {
-        // 오브젝트가 파괴될 때 슬라이더 이벤트 리스너 안전하게 해제
-        if (selecGreeneryRatioSlider != null)
-        {
-            selecGreeneryRatioSlider.onValueChanged.RemoveListener(UpdatePercentValue);
-        }
-    }
+
+
+    
+
 }

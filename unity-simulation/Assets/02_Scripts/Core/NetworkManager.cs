@@ -179,6 +179,42 @@ public class NetworkManager : MonoBehaviour
         {
             Debug.LogError("[NetworkManager 에러] NetworkManager 인스펙터에 MapoDirectMaterial이 등록되지 않았습니다.");
         }
+
+        UIManager.Instance.screenBlockingPanel.SetActive(false);
+    }
+
+    public void ResetDecalData()
+    {
+        Debug.Log("[NetworkManager] 데칼 데이터를 초기화합니다.");
+
+        // 데칼 코루틴 취소
+        if (currentDecalCoroutine != null)
+        {
+            StopCoroutine(currentDecalCoroutine);
+            currentDecalCoroutine = null;
+        }
+
+        // 캐싱된 텍스처 메모리 해제
+        if (CachedDecalTexture != null)
+        {
+            Destroy(CachedDecalTexture);
+            CachedDecalTexture = null;
+        }
+
+        // 머티리얼에서 텍스처 제거 (null 대입)
+        if (runtimeMaterial != null)
+        {
+            runtimeMaterial.SetTexture("Base_Map", null);
+        }
+
+        IsPngLoaded = false;
+
+        // 데칼 갱신
+        if (mapoDecalProjector != null)
+        {
+            mapoDecalProjector.enabled = false;
+            mapoDecalProjector.enabled = true;
+        }
     }
     #endregion
 
@@ -190,6 +226,10 @@ public class NetworkManager : MonoBehaviour
         apiTargetTime = UIManager.Instance.CurrentSelectedDate;
 
         //if (apiTargetTime == null)
+        //{
+
+        //}
+        //else
         //{
 
         //}
