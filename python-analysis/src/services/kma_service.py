@@ -1,11 +1,7 @@
 import struct
-import json
-import os
 import requests
 import numpy as np
-import pandas as pd
 import netCDF4 as nc
-from flask import jsonify
 from .base_service import BaseWeatherService
 from .visualizer import DecalVisualizer
 
@@ -15,9 +11,8 @@ class KmaWeatherService(BaseWeatherService):
     def __init__(self):
         super().__init__()
         self.api_url = "https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-sfc_obs_nc_api"
-        self.auth_key = "ADb5ZbflRq22-WW35Satdw"
+        self.auth_key = "UqDMYIRqQVGgzGCEapFR6w"
         self.nc_path = "../data/sfc_grid_latlon.nc"
-
     
         self._load_nc_coordinates()
 
@@ -87,7 +82,7 @@ class KmaWeatherService(BaseWeatherService):
         )
 
 
-
+    #  여기 마포구만 넘기게
     def generate_decal_geojson(self, tm, obs):
         """GeoJSON 생성단도 원본의 자동 min/max 스케일을 모방하여 정밀 매핑"""
         params = {"obs": obs, "tm": tm, "disp": "B", "authKey": self.auth_key}
