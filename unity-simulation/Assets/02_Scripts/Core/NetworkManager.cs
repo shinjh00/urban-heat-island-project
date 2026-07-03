@@ -37,9 +37,14 @@ public class NetworkManager : MonoBehaviour
     public bool IsAllWeatherDataLoaded => IsGeoJsonLoaded && IsPngLoaded;
     #endregion
 
-    // TODO: [피드백/크리티컬] 진행 중인 GeoJSON 요청을 참조로 들고 있어야 OnDisable()에서 안전하게 정리할 수 있어요.
-    // 아래 OnDisable() 쪽 TODO와 함께 보세요.
+    // 진행 중인 GeoJSON 요청
     private UnityWebRequest currentGeoJsonRequest;
+
+    // Mapo_Material 원본 파일을 보호하기 위한 런타임용 변수
+    private Material runtimeMaterial;
+
+    // 현재 진행되고 있는 데칼 요청 코루틴
+    private Coroutine currentDecalCoroutine;
 
 
     void Awake()
@@ -50,26 +55,21 @@ public class NetworkManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        runtimeMaterial = new Material(mapoDirectMaterial);
     }
 
     private void OnDisable()
     {
         StopAllCoroutines();
 
-        // TODO: [피드백/크리티컬]
-        // StopAllCoroutines()를 호출하면 진행중 코루틴 아예 멈춰버림
-        // FetchGeoJsonData() 안의 try-finally에서 request.Dispose()를 보장하려던 finally 블록이 이 시점엔 실행되지 않음
-        // 즉 통신 도중 이 오브젝트가 비활성화되면, 그 요청의 UnityWebRequest가 정리 안 되게 되므로 
-        // 스크립트가 비활성화되거나 씬이 멈출 때 통신을 모두 정리를 위해 여기서 직접 진행 중인 요청을 잡아서 정리하기
-
-        // 아래 처럼 추가하여 수정하면 좋을듯
-        //if (currentGeoJsonRequest != null)
-        //{
-        //    currentGeoJsonRequest.Abort();   // 진행 중인 다운로드 강제 중단
-        //    currentGeoJsonRequest.Dispose(); // C++ 네이티브 메모리 해제
-        //    currentGeoJsonRequest = null;    // 참조 정리
-        //    Debug.Log("[NetworkManager] OnDisable 안전 장치에 의해 진행 중인 GeoJSON 통신이 강제 정리되었습니다.");
-        //}
+        if (currentGeoJsonRequest != null)
+        {
+            currentGeoJsonRequest.Abort();   // 진행 중인 다운로드 강제 중단
+            currentGeoJsonRequest.Dispose(); // C++ 네이티브 메모리 해제
+            currentGeoJsonRequest = null;    // 참조 정리
+            Debug.Log("[NetworkManager] OnDisable 안전 장치에 의해 진행 중인 GeoJSON 통신이 강제 정리되었습니다.");
+        }
     }
 
 
@@ -81,13 +81,19 @@ public class NetworkManager : MonoBehaviour
     // 먼저보낸 요청이 나중에 도착해 ApplyTextureToSceneDecal()을
     // 더 늦게 호출하면 최신 날짜 대신 이전 날짜의 히트맵이 남을 수 도있음  
     // 고치는 법 예시: 요청 시작 시 자기만의 요청 ID(또는 요청한 apiTargetTime)를 기억해두고,
+
     // 응답이 왔을 때 "지금 UI가 가리키는 날짜와 이 응답의 날짜가 같은 경우에만" 텍스처를 적용하면 어떨지? 
     // 아니면 새 요청 시작 전에 이전 코루틴을 StopCoroutine으로 취소하기
 
     // ControlPanel.cs에서 시각화 시작 버튼 클릭 시 호출됨
     public void RefreshDecalData()
     {
-        StartCoroutine(FetchPngDecalImage());
+        if (currentDecalCoroutine != null)
+        {
+            StopCoroutine(currentDecalCoroutine);
+        }
+
+        currentDecalCoroutine = StartCoroutine(FetchPngDecalImage());
     }
 
     // PNG 데칼 이미지 다운로드 코루틴
@@ -112,10 +118,9 @@ public class NetworkManager : MonoBehaviour
                     Texture2D texture = DownloadHandlerTexture.GetContent(request);
                     if (texture != null)
                     {
-                        // TODO: [피드백/크리티컬]
-                        // CachedDecalTexture에 새 텍스처를 대입이전에 이전 텍스처 안지워주는 것으로 보임
-                        // Texture2D는 C# GC가 자동으로 안 치워주니 아래처럼 해결하기
-                        // 고치는 법: 대입 직전에 "if (CachedDecalTexture != null) Destroy(CachedDecalTexture);"  
+                        if (CachedDecalTexture != null)
+                            Destroy(CachedDecalTexture);
+
                         CachedDecalTexture = texture;
                         IsPngLoaded = true;
                         Debug.Log($"[NetworkManager] 히트맵 PNG 다운로드 성공: ({texture.width}x{texture.height})");
@@ -154,16 +159,10 @@ public class NetworkManager : MonoBehaviour
         newTexture.filterMode = FilterMode.Bilinear;
         newTexture.Apply(); // GPU에 텍스처 데이터 업로드 고정
 
-
-        // TODO: [피드백/크리티컬]
-        // 이 mapoDirectMaterial은 프로젝트에 있는 실제 머티리얼로 유니티 실행중에 SetTexture 로 값 바꾸면
-        // 에디터에서 변경된 값이 파일에 남을 수 있음. git에서도 diff 가 계속 찍힐 수 있으므로
-        // Awake()에서 런타임 전용 복사본을 한 번만 만들어서 runtimeMaterial = new Material(mapoDirectMaterial); 
-        // 이후로는 원본 대신 runtimeMaterial만 수정하고, 그걸 Decal Projector에 연결하기
-        if (mapoDirectMaterial != null)
+        if (runtimeMaterial != null)
         {
             // 셰이더 그래프 내부 아이디 "Base_Map"과 바인딩
-            mapoDirectMaterial.SetTexture("Base_Map", newTexture);
+            runtimeMaterial.SetTexture("Base_Map", newTexture);
 
             // Decal Projector를 껐다 켜서 화면 갱신 유도 (CPU 연산 최소화)
             if (mapoDecalProjector != null)
@@ -185,15 +184,10 @@ public class NetworkManager : MonoBehaviour
     #region ``grid.geojson 받아와서 rawJsonText로 반환``
     public IEnumerator FetchGeoJsonData(Action<string> onResult)
     {
-        // TODO: [피드백/크리티컬]
-        // 아래 주석 처리된 줄이 실제로 써야하는 코드로 보임
-        // 현재는 하드코딩된 코드가 사용중이라서 사용자 선택값과 달리 같은 데이터만 가져오고있음
-
-        //string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm={apiTargetTime}";
-        string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm=202511151400";
+        // 없으면 6월껄로 , 있으면 그걸로
+        string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm={apiTargetTime}";
         UnityWebRequest request = UnityWebRequest.Get(requestUrl);
 
-        // TODO: [피드백/크리티컬] OnDisable()에서 정리할 수 있도록 참조를 필드에 저장해둠 (위 OnDisable TODO 참고)
         currentGeoJsonRequest = request;
         request.timeout = 30;
 
@@ -221,6 +215,9 @@ public class NetworkManager : MonoBehaviour
             request.Dispose();
             Debug.Log("[NetworkManager] 통신 종료 후 리소스 해제 완료");
         }
+
+        currentDecalCoroutine = null;
+        yield break;
     }
     #endregion
 

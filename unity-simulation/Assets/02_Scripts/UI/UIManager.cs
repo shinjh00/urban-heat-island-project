@@ -44,6 +44,7 @@ public class UIManager : MonoBehaviour
     public void ShowBuildingInfo(BuildingInfo info)
     {
         currentBuildingInfo = info;
+
         // 분리된 패널 스크립트에게 UI 갱신 및 오픈 처리를 위임합니다.
         if (buildingInfoPanel != null)
         {
