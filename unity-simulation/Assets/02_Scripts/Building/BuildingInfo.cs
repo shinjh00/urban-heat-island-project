@@ -19,7 +19,9 @@ public class BuildingInfo : MonoBehaviour
     // TODO: [피드백] BuildingData.cs 피드백 같이 참고하여 수정하기
     public float greeneryScore;
 
-
     // 옥상 녹화 우선순위
     public int greeneryRank;
+
+    // 건물 녹화 상태
+    public GreeneryState greeneryStatus;
 }

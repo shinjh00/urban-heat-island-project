@@ -8,10 +8,13 @@ using UnityEngine;
 // 그리너리 관련된 정보가 현재는 나눠져 있음. 
 //BuildingData.cs에 만들어진 GreeneryState enum (Normal, Selected, top10Selected) 쓰이는 곳 없음
 //BuildingInfo.cs에서는 greeneryScore(float), greeneryRank(int) 점수/순위만 있고 상태 없음
+
 //SimulationController.cs에서는 greeneryStatus가 그냥 문자열("GreeneryPriority", "GreeneryTop10") 
 //문자열을 사용하는 것은 위험하니 아래 enum을 전체적용하자
+
 //BuildingInfo에는 enum 변수 추가하여 수정. SimulationController에서도 enum으로 수정. 
 //GreeneryCalculator에서는 문자열 대신 enum값 직접세팅.  
+
 //enum을 사용하면 jsonconvert 쓸때 StringEnumConverter만 붙여도 "GreeneryTop10"처럼 사람이 읽기 좋은 형태로 사용도 가능함! 
 //public enum GreeneryState
 //{
@@ -20,11 +23,12 @@ using UnityEngine;
 //    GreeneryTop10 = 2
 //}
 
+// 건물 녹화 상태
 public enum GreeneryState
 {
-    Normal,          // 기본 상태
-    Selected,        // 녹화 대상 선정
-    top10Selected    // 녹화 대상 중 top10 선정
+    Normal,             // 기본 상태
+    GreeneryPriority,   // 녹화 대상 선정 (top10 제외)
+    GreeneryTop10       // 녹화 대상 중 top10 선정
 }
 
 // 건물 데이터 모델
