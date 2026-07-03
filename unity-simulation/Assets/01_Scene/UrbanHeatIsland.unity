@@ -6807,7 +6807,7 @@ MonoBehaviour:
   - {fileID: 5730157170540986393}
   dateDropdown: {fileID: 2029020186852196971}
   visualizationStartButton: {fileID: 4998615410574788155}
-  selectGreeneryZoneText: {fileID: 6233153406588154232}
+  selectGreeneryZoneText: {fileID: 0}
   selectGreeneryZoneButton: {fileID: 7268393950069820408}
   currentRatioText: {fileID: 2205421884052123962}
   selecGreeneryRatioSlider: {fileID: 6397450755592893019}
