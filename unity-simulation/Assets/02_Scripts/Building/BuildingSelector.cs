@@ -14,11 +14,14 @@ public class BuildingSelector : MonoBehaviour
     private MeshRenderer selectedRenderer;
     //private Material selectedMaterial;
 
-    // default 색상 기억용 변수
-    private Color originalColor;
-
     [Header("구역 선택 (시뮬레이션용)")]
     public GreeneryVisualizer greeneryVisualizer;
+
+
+    // 머티리얼 복제 없이 색상만 덮어쓰는 프로퍼티 블록 (재사용)
+    private MaterialPropertyBlock propBlock;
+    private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor"); // URP용
+    private static readonly int ColorId = Shader.PropertyToID("_Color");         // Standard용
 
     // '구역 선택' 버튼을 누르면 true. 테스트 땐 직접 체크해도 됨
     public bool zoneSelectionMode = false;
@@ -32,6 +35,7 @@ public class BuildingSelector : MonoBehaviour
 
     private void Awake()
     {
+        propBlock = new MaterialPropertyBlock();
         // BuildingManager가 발행하는 선택/해제 이벤트 구독
         BuildingManager.OnBuildingSelected += HandleBuildingSelected;
         BuildingManager.OnBuildingDeselected += HandleBuildingDeselected;
@@ -62,14 +66,6 @@ public class BuildingSelector : MonoBehaviour
 
             if (info != null)
             {
-                //// 🔹 구역 선택 모드면: 단일 선택 대신 그리드 전체 선택
-                //if (zoneSelectionMode)
-                //{
-                //    SelectZone(info);
-                //    return;
-                //}
-
-                // 일반 모드: 기존 단일 건물 선택 (그대로)
                 BuildingManager.Instance.SelectBuilding(info);
                 return;
             }
@@ -95,22 +91,13 @@ public class BuildingSelector : MonoBehaviour
         if (mr == null)
             return;
 
-        selectedRenderer = obj.GetComponent<MeshRenderer>();
-        if (selectedRenderer != null)
-        {
+        selectedRenderer = mr;
 
-
-            // TODO: [피드백] renderer.material 로 직접 사용하면 머티리얼 객체가 새로만들어짐.
-            // 우리프로젝트에서는 건물 선택, 해제가 반복될 것이므로 MeshRenderer.SetPropertyBlock(MaterialPropertyBlock)
-            // 을 사용하면 더좋음. 머티리얼을 복제하지않고 색상만 바꾸는 방식이됨. 
-            // 아래 RemoveHighlight 함수에서 originalColor 바꿀때도 propertyBlock.Clear()
-
-
-            // 3. 원래 색상 저장 후 변경
-            originalColor = selectedRenderer.material.color;
-            selectedRenderer.material.color = highlightColor;
-        }
-
+        int colorId = mr.sharedMaterial.HasProperty(BaseColorId) ? BaseColorId : ColorId;
+        propBlock.Clear();
+        propBlock.SetColor(colorId, highlightColor);
+        mr.SetPropertyBlock(propBlock);
+        
         UIManager.Instance.ShowBuildingInfo(info);
     }
 
@@ -124,44 +111,14 @@ public class BuildingSelector : MonoBehaviour
     {
         if (selectedRenderer != null)
         {
-            // 4. 저장해둔 원래 색상으로 복구
-            selectedRenderer.material.color = originalColor;
+            // 블록을 비워서 다시 적용 → 머티리얼 본래 색이 그대로 드러남
+            propBlock.Clear();
+            selectedRenderer.SetPropertyBlock(propBlock);
             selectedRenderer = null;
         }
     }
 
 
-    // TODO: [피드백] 사용안하는 아래코드들은 모두 지우기 
-
-
-    ///
-    //// 매서드 추가부분
-    //// '구역 선택' 버튼이 호출 (UI 버튼 OnClick 에 연결)
-    //public void EnableZoneSelection()
-    //{
-    //    zoneSelectionMode = true;
-    //    Debug.Log("[BuildingSelector] 구역 선택 모드 ON — 건물을 클릭하세요");
-    //}
-
-    //// 클릭한 건물이 속한 그리드 전체를 선택: 그 구역만 보이고 깜빡
-    //private void SelectZone(BuildingInfo clicked)
-    //{
-    //    if (clicked.data == null) return;
-
-    //    selectedZoneBuildings = GetSameZoneBuildings(clicked);
-
-    //    if (greeneryVisualizer != null)
-    //    {
-    //        greeneryVisualizer.ShowOnly(selectedZoneBuildings);      // 그 구역만 보이기
-    //        greeneryVisualizer.BlinkAllBuildings(selectedZoneBuildings); // 잠깐 깜빡
-    //    }
-
-    //    Debug.Log($"[BuildingSelector] 구역 선택 완료 — {selectedZoneBuildings.Count}개 건물");
-    //    zoneSelectionMode = false; // 한 구역 선택했으면 모드 끄기
-    //}
-
-    // 클릭한 건물과 같은 500m 그리드 셀의 건물들 반환
-    // [임시] zoneID 나오면 아래 셀 계산 대신 → if (info.zoneID == clicked.zoneID) 로 교체
     private List<BuildingInfo> GetSameZoneBuildings(BuildingInfo clicked)
     {
         var result = new List<BuildingInfo>();
