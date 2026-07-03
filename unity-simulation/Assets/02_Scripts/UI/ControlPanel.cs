@@ -22,17 +22,15 @@ public class ControlPanel : MonoBehaviour
 
     [Header("옥상 녹화 시뮬레이션 탭")]
     [SerializeField]
-    private Button selectGreeneryZoneButton;    // 구역 선택가능 버튼
+    private TMP_Text selectGreeneryZoneText;    // 구역 선택 안내 문구
     [SerializeField]
-    private TMP_Text currentRatioText;       // 슬라이더 조작 시 현재 수치 텍스트
+    private Button selectGreeneryZoneButton;    // 구역 선택 버튼
+    [SerializeField]
+    private TMP_Text currentRatioText;          // 슬라이더 조작 시 현재 수치 텍스트
     [SerializeField]
     private Slider selecGreeneryRatioSlider;    // 목표 녹화율 설정 슬라이더
     [SerializeField]
     private Button startGreeneryButton;         // 시뮬레이션 시작 버튼
-
-    [Header("그늘막 설치 시뮬레이션 탭")]
-    [SerializeField]
-    private Button installShadeButton;
 
     // ZoneSelector로부터 전달받아 캐싱해두는 현재 선택된 zone 정보
     private ZoneData selectedZoneData;
@@ -129,7 +127,6 @@ public class ControlPanel : MonoBehaviour
         dateDropdown.ClearOptions();
         dateOptions.Clear();
         isDateSelected = false;
-        dateOptions.Add("----------");
 
         // 추가할 글자들을 담을 리스트
         DateTime currentTime = new DateTime(2026, 6, 1);

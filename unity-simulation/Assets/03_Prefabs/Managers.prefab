@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2546375220214379834
+--- !u!1 &745128365887822803
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,60 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3897825394070948167}
-  - component: {fileID: 5552692475907987741}
-  m_Layer: 0
-  m_Name: BuildingManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3897825394070948167
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2546375220214379834}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7893476319380303785}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5552692475907987741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2546375220214379834}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d3d62c73c79b6e4fb0895eecfa27e67, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BuildingManager
-  georeference: {fileID: 0}
-  terrainTileset: {fileID: 0}
-  activationRadius: 500
-  maxBuildings: 500
-  checkInterval: 5
-  geoJsonFileName: mapo_building_final.geojson
-  defaultMaterial: {fileID: 2100000, guid: a140bcd43f806234680eb39bb5043835, type: 2}
-  gridLoadRadius: 500
---- !u!1 &2718367379824669691
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1102626331415593483}
-  - component: {fileID: 2157668929085621915}
+  - component: {fileID: 3260820936784243855}
+  - component: {fileID: 4510542174827163446}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -69,28 +17,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1102626331415593483
+--- !u!4 &3260820936784243855
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2718367379824669691}
+  m_GameObject: {fileID: 745128365887822803}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7893476319380303785}
+  m_Father: {fileID: 9054256053517715692}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2157668929085621915
+--- !u!114 &4510542174827163446
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2718367379824669691}
+  m_GameObject: {fileID: 745128365887822803}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d168f9853db7774a85bab4dfe9f49f8, type: 3}
@@ -100,7 +48,7 @@ MonoBehaviour:
   apiTargetTime: 
   mapoDirectMaterial: {fileID: 2100000, guid: c8d2f99c6fcc5ff46902ecc616aef596, type: 2}
   mapoDecalProjector: {fileID: 0}
---- !u!1 &4215472646589502454
+--- !u!1 &3232440497221669373
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -108,45 +56,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7893476319380303785}
-  m_Layer: 0
-  m_Name: Managers
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7893476319380303785
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4215472646589502454}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 3897825394070948167}
-  - {fileID: 1102626331415593483}
-  - {fileID: 3107719334605943461}
-  - {fileID: 1394474221654919920}
-  - {fileID: 6858935143555651238}
-  - {fileID: 1046080423543449322}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &6073856158377912595
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1394474221654919920}
-  - component: {fileID: 1673675020296262357}
+  - component: {fileID: 3216043986575642649}
+  - component: {fileID: 1876625849513546753}
   m_Layer: 0
   m_Name: SimulationController
   m_TagString: Untagged
@@ -154,28 +65,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1394474221654919920
+--- !u!4 &3216043986575642649
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6073856158377912595}
+  m_GameObject: {fileID: 3232440497221669373}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7893476319380303785}
+  m_Father: {fileID: 9054256053517715692}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1673675020296262357
+--- !u!114 &1876625849513546753
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6073856158377912595}
+  m_GameObject: {fileID: 3232440497221669373}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e15ceb415ec6b684891ff5e3b6fbfc8c, type: 3}
@@ -193,7 +104,7 @@ MonoBehaviour:
   isBuildingDataLoaded: 0
   spawnedAllBuildings: []
   greeneryRankingBuildings: []
---- !u!1 &7504471236293148481
+--- !u!1 &4885190117341204612
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -201,11 +112,145 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3107719334605943461}
-  - component: {fileID: 4129434672053652267}
-  - component: {fileID: 3697451201714547025}
-  - component: {fileID: 6961622909855973837}
-  - component: {fileID: 3913266385478390642}
+  - component: {fileID: 6320729761139727940}
+  - component: {fileID: 4276207334774005557}
+  m_Layer: 0
+  m_Name: GreeneryVisualizer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6320729761139727940
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4885190117341204612}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9054256053517715692}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4276207334774005557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4885190117341204612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a7cc5282a342da448c4fcb63659c65f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GreeneryVisualizer
+  top10Color: {r: 0, g: 0, b: 0, a: 1}
+  priorityColor: {r: 0.55, g: 0.8, b: 0.55, a: 1}
+  labelHeightOffset: 20
+  labelFontSize: 72
+  labelColor: {r: 0, g: 0, b: 0, a: 1}
+  tooltipSprite: {fileID: -8496793869215785521, guid: 3715a2cda49a5b548a1550f6000faa4c, type: 3}
+  bubbleScale: {x: 10, y: 10}
+  bubbleYOffset: -3
+--- !u!1 &5901363620765828943
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 39076041424698751}
+  - component: {fileID: 2275894288519591438}
+  m_Layer: 0
+  m_Name: GreeneryCalculator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &39076041424698751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5901363620765828943}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9054256053517715692}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2275894288519591438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5901363620765828943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b51bc8d283e2a6f4b99b47ad10146e73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GreeneryCalculator
+  searchRadiusMeters: 250
+--- !u!1 &6558274069877069942
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9054256053517715692}
+  m_Layer: 0
+  m_Name: Managers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9054256053517715692
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6558274069877069942}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2575983179756821118}
+  - {fileID: 3260820936784243855}
+  - {fileID: 7244688047892716253}
+  - {fileID: 3216043986575642649}
+  - {fileID: 39076041424698751}
+  - {fileID: 6320729761139727940}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7029212054900213173
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7244688047892716253}
+  - component: {fileID: 4907333253877496195}
+  - component: {fileID: 2955485576749463222}
+  - component: {fileID: 3616809593194480269}
+  - component: {fileID: 4058821954251653162}
   m_Layer: 0
   m_Name: ZoneManager
   m_TagString: Untagged
@@ -213,40 +258,40 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3107719334605943461
+--- !u!4 &7244688047892716253
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7504471236293148481}
+  m_GameObject: {fileID: 7029212054900213173}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7893476319380303785}
+  m_Father: {fileID: 9054256053517715692}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4129434672053652267
+--- !u!114 &4907333253877496195
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7504471236293148481}
+  m_GameObject: {fileID: 7029212054900213173}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9498d32e3488ffe42a0ae6bb0af1d496, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoneManager
---- !u!114 &3697451201714547025
+--- !u!114 &2955485576749463222
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7504471236293148481}
+  m_GameObject: {fileID: 7029212054900213173}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9fbde1cf3daf1804497f63a071216786, type: 3}
@@ -255,13 +300,13 @@ MonoBehaviour:
   georeference: {fileID: 0}
   spawnedGrids: []
   grids: {fileID: 0}
---- !u!114 &6961622909855973837
+--- !u!114 &3616809593194480269
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7504471236293148481}
+  m_GameObject: {fileID: 7029212054900213173}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a436acd99855d3408b24f3e3f2770c3, type: 3}
@@ -270,19 +315,19 @@ MonoBehaviour:
   generatedMaterials: []
   duration: 2
   interval: 0.2
---- !u!114 &3913266385478390642
+--- !u!114 &4058821954251653162
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7504471236293148481}
+  m_GameObject: {fileID: 7029212054900213173}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2ea8ac8563458f4f8ff846f64d491b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoneSelector
---- !u!1 &7585632335567833347
+--- !u!1 &8773939000658559598
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -290,86 +335,47 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1046080423543449322}
-  - component: {fileID: 1652546409855693115}
+  - component: {fileID: 2575983179756821118}
+  - component: {fileID: 3112501247503930398}
   m_Layer: 0
-  m_Name: GreeneryVisualizer
+  m_Name: BuildingManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1046080423543449322
+--- !u!4 &2575983179756821118
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7585632335567833347}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.0481644, y: 0.94714355, z: 6.521927}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7893476319380303785}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1652546409855693115
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7585632335567833347}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a7cc5282a342da448c4fcb63659c65f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GreeneryVisualizer
-  top10Color: {r: 0, g: 0, b: 0, a: 1}
-  priorityColor: {r: 0.55, g: 0.8, b: 0.55, a: 1}
---- !u!1 &8969871400183979574
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6858935143555651238}
-  - component: {fileID: 7411741350714060542}
-  m_Layer: 0
-  m_Name: GreeneryCalculator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6858935143555651238
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8969871400183979574}
+  m_GameObject: {fileID: 8773939000658559598}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7893476319380303785}
+  m_Father: {fileID: 9054256053517715692}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7411741350714060542
+--- !u!114 &3112501247503930398
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8969871400183979574}
+  m_GameObject: {fileID: 8773939000658559598}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b51bc8d283e2a6f4b99b47ad10146e73, type: 3}
+  m_Script: {fileID: 11500000, guid: 4d3d62c73c79b6e4fb0895eecfa27e67, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GreeneryCalculator
-  searchRadiusMeters: 250
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingManager
+  georeference: {fileID: 0}
+  terrainTileset: {fileID: 0}
+  activationRadius: 500
+  maxBuildings: 500
+  checkInterval: 5
+  geoJsonFileName: mapo_building_final.geojson
+  defaultMaterial: {fileID: 2100000, guid: a140bcd43f806234680eb39bb5043835, type: 2}
+  gridLoadRadius: 500
