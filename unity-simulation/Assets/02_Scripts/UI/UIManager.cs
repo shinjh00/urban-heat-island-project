@@ -1,5 +1,6 @@
-using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -10,7 +11,6 @@ public class UIManager : MonoBehaviour
 
     // 시각화 드롭다운에서 선택된 날짜를 전역적으로 기억할 변수
     public string CurrentSelectedDate { get; private set; }
-
 
     // 현재 선택된 건물 데이터
     private BuildingInfo currentBuildingInfo;
@@ -25,9 +25,12 @@ public class UIManager : MonoBehaviour
         Instance = this;
 
         // 실행 시 EventSystem 찾고 없으면 할당
-
-        // 시각화 날짜 초기화 방어 코드
-        CurrentSelectedDate = "2026년 06월";
+        if (EventSystem.current != null)
+        {
+            return;
+        }
+        EventSystem eventSystem = Resources.Load<EventSystem>("EventSystem");
+        Instantiate(eventSystem);
     }
 
     #region ``시각화 기능``
