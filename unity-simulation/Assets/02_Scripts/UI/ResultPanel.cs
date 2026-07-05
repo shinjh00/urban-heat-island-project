@@ -5,9 +5,10 @@ using UnityEngine;
 public class ResultPanel : MonoBehaviour
 {
     [Header("TMP UI Elements")]
-    [SerializeField] private TextMeshProUGUI GreeningCount_txt; // 녹화 건물 개수 : 263개
-    [SerializeField] private TextMeshProUGUI TotalGreeningArea_txt;  // 녹화 적용 면적: (㎡) 총 18,750m
-    [SerializeField] private TextMeshProUGUI ExpectedEffect;    // 예상 효과: 15.7C → 15.54C (0.16C 감소)
+    [SerializeField] private TMP_Text GreeningRatio_txt;        // 녹화율 : 75%
+    [SerializeField] private TMP_Text GreeningCount_txt;        // 녹화 건물 개수 : 263개
+    [SerializeField] private TMP_Text TotalGreeningArea_txt;    // 녹화 적용 면적: (㎡) 총 18,750m
+    [SerializeField] private TMP_Text ExpectedEffect;           // 예상 효과: 15.7C → 15.54C (0.16C 감소)
 
     private void Start()
     {
@@ -33,17 +34,23 @@ public class ResultPanel : MonoBehaviour
         var controller = SimulationController.Instance;
         if (controller == null) return;
 
-        // 1. 녹화 건물 개수
+        // 1. 녹화율
+        if (GreeningRatio_txt != null)
+            GreeningRatio_txt.text = $"{controller.greeneryRate} %";
+
+        // 2. 녹화 건물 개수
         if (GreeningCount_txt != null)
             GreeningCount_txt.text = $"{controller.greeneryBuildingcount} 개";
 
-        // 2. 녹화 적용 면적 (㎡)
+        // 3. 녹화 적용 면적 (㎡)
         if (TotalGreeningArea_txt != null)
             TotalGreeningArea_txt.text = $"총 {controller.expectedGreeneryArea:#,##0.0} m²";
 
-        // 3. 예상 효과
+        // 4. 예상 효과
         if (ExpectedEffect != null)
             ExpectedEffect.text = $"{controller.gridOriginalTemp:F2}°C -> {controller.greeneryAfterTemp:F2}°C ({controller.expectedTempEffect:F2}°C 감소)";
+
+        UIManager.Instance.ShowResultInfo();
 
         Debug.Log("[ResultPanel] 시뮬레이션 결과 UI 갱신이 완료되었습니다.");
     }

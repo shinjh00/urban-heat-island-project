@@ -223,17 +223,11 @@ public class NetworkManager : MonoBehaviour
     public IEnumerator FetchGeoJsonData(Action<string> onResult)
     {
         // 없으면 6월껄로 , 있으면 그걸로
+        if (apiTargetTime == null)
+        {
+            apiTargetTime = "202606151400";
+        }
         apiTargetTime = UIManager.Instance.CurrentSelectedDate;
-
-        //if (apiTargetTime == null)
-        //{
-
-        //}
-        //else
-        //{
-
-        //}
-
 
         string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm={apiTargetTime}";
         UnityWebRequest request = UnityWebRequest.Get(requestUrl);

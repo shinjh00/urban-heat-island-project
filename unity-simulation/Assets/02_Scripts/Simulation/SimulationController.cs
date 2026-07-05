@@ -167,8 +167,8 @@ public class SimulationController : MonoBehaviour
         spawnedAllBuildings.Add(newBuilding);
 
         // 필요 시 실시간 디버그 로그 활성화
-        Debug.Log($"[SimulationController] 새 건물 수집! ID: {newBuilding.buildingID} " +
-            $"| 현재 수집된 건물: {spawnedAllBuildings.Count}개");
+        //Debug.Log($"[SimulationController] 새 건물 수집! ID: {newBuilding.buildingID} " +
+        //    $"| 현재 수집된 건물: {spawnedAllBuildings.Count}개");
     }
 
     /// <summary>

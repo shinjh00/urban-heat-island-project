@@ -33,7 +33,9 @@ public class ControlPanel : MonoBehaviour
     private Slider selecGreeneryRatioSlider;    // 목표 녹화율 설정 슬라이더
     [SerializeField]
     private Button startGreeneryButton;         // 시뮬레이션 시작 버튼
-    
+    [SerializeField]
+    private Button stopGreeneryButton;         // 시뮬레이션 시작 버튼
+
 
     // ZoneSelector로부터 전달받아 캐싱해두는 현재 선택된 zone 정보
     private ZoneData selectedZoneData;
@@ -41,13 +43,15 @@ public class ControlPanel : MonoBehaviour
     // 드롭다운에 들어갈 옵션 리스트
     private List<string> dateOptions = new List<string>();
 
+    private Image checkmarkImage;
+
+    private string selectZoneTextDefault = "시뮬레이션 할 구역을\r\n선택하세요.";
+
     private bool isDateSelected = false;    // 시각화 날짜 선택 여부
     private bool isVisualizing = false;     // 시각화 진행 여부
     private bool isZoneSelected = false;    // 시뮬 구역 선택 여부
     private bool isRatioSelected = false;   // 시뮬 녹화율 선택 여부
     private bool isSimulating = false;      // 시뮬 진행 여부
-
-
 
     void Start()
     {
@@ -67,6 +71,8 @@ public class ControlPanel : MonoBehaviour
         // 시작 시 현재 슬라이더 값 즉시 반영
         UpdatePercentValue(selecGreeneryRatioSlider.value);
 
+        selectGreeneryZoneText.text = selectZoneTextDefault;
+
         // 시각화 시작 버튼 리스너 등록
         if (visualizationStartButton != null)
         {
@@ -80,7 +86,7 @@ public class ControlPanel : MonoBehaviour
             visualizationResetButton.onClick.AddListener(OnClickResetButton);
         }
 
-        // 옥상 녹화 시뮬레이션 시작 버튼 리스너 등록
+        // 옥상 녹화 구역 선택 버튼 리스너 등록
         if (selectGreeneryZoneButton != null)
         {
             selectGreeneryZoneButton.onClick.AddListener(OnSelectGreeneryZoneButtonClicked);
@@ -90,6 +96,14 @@ public class ControlPanel : MonoBehaviour
         if (startGreeneryButton != null)
         {
             startGreeneryButton.onClick.AddListener(OnStartGreeneryButtonClicked);
+            startGreeneryButton.gameObject.SetActive(true);
+        }
+
+        // 옥상 녹화 시뮬레이션 종료 버튼 리스너 등록
+        if (stopGreeneryButton != null)
+        {
+            stopGreeneryButton.onClick.AddListener(OnStopGreeneryButtonClicked);
+            stopGreeneryButton.gameObject.SetActive(false);
         }
     }
 
@@ -101,7 +115,7 @@ public class ControlPanel : MonoBehaviour
         // 슬라이더 값이 바뀔 때 실시간으로 텍스트 업데이트하는 리스너
         if (selecGreeneryRatioSlider != null)
         {
-            selecGreeneryRatioSlider.onValueChanged.AddListener(UpdatePercentValue);
+            selecGreeneryRatioSlider.onValueChanged.AddListener(OnSliderValueChanged);
         }
     }
 
@@ -111,12 +125,12 @@ public class ControlPanel : MonoBehaviour
 
         if (selecGreeneryRatioSlider != null)
         {
-            selecGreeneryRatioSlider.onValueChanged.RemoveListener(UpdatePercentValue);
+            selecGreeneryRatioSlider.onValueChanged.RemoveListener(OnSliderValueChanged);
         }
     }
 
 
-    #region `` 시각화 UI 상호작용 관련 ``
+    #region `` 시각화 ``
     private void SwitchTab(int tabIndex)
     {
         if (tabIndex < 0 || tabIndex >= contentPanels.Length)
@@ -144,8 +158,8 @@ public class ControlPanel : MonoBehaviour
         if (dateDropdown == null)
             return;
 
-        dateDropdown.ClearOptions();
         dateOptions.Clear();
+        dateDropdown.ClearOptions();
 
         // 추가할 글자들을 담을 리스트
         DateTime currentTime = new DateTime(2026, 6, 1);
@@ -160,9 +174,14 @@ public class ControlPanel : MonoBehaviour
 
         // 생성한 리스트를 드롭다운에 넣기
         dateDropdown.AddOptions(dateOptions);
+        //dateDropdown.captionText.text = "년/월 선택";
         dateDropdown.RefreshShownValue();  // 화면 갱신
-        dateDropdown.captionText.text = "년/월 선택";
         isDateSelected = false;
+
+        dateDropdown.captionText.text = "년/월 선택";
+        Transform template = dateDropdown.transform.Find("Template");
+        checkmarkImage = template.GetComponentInChildren<Toggle>(true)?.graphic as Image;
+        checkmarkImage.enabled = false;
 
         // 드롭다운 리스너 연결
         dateDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
@@ -172,6 +191,7 @@ public class ControlPanel : MonoBehaviour
     private void OnDropdownValueChanged(int index)  // isDateSelected
     {
         isDateSelected = true;
+        checkmarkImage.enabled = true;
 
         if (isVisualizing)
             visualizationStartButton.interactable = true;
@@ -189,14 +209,26 @@ public class ControlPanel : MonoBehaviour
     #endregion
 
 
-    #region `` 시뮬레이션 UI 상호작용 관련 ``
+    #region `` 시뮬레이션 ``
     // 그리드가 선택될 때마다 호출되어 zone 정보를 캐싱
     private void HandleZoneSelected(ZoneItem selectedItem)
     {
-        if (selectedItem == null || selectedItem.data == null) return;
+        if (selectedItem == null || selectedItem.data == null)
+        {
+            isZoneSelected = false;
+            return;
+        }
 
+        isZoneSelected = true;
         selectedZoneData = selectedItem.data;
+        selectGreeneryZoneText.text = selectedZoneData.zoneId;
         Debug.Log($"[ControlPanel] 선택된 Zone 캐싱 완료 — ID: {selectedZoneData.zoneId}, 온도: {selectedZoneData.temperature}");
+    }
+
+    private void OnSliderValueChanged(float value)
+    {
+        isRatioSelected = (value == 0) ? false : true;
+        UpdatePercentValue(value);
     }
 
     // 목표 녹화율 슬라이더 움직일 시 숫자 텍스트 출력
@@ -214,7 +246,7 @@ public class ControlPanel : MonoBehaviour
     // 시각화 시작 버튼을 눌렀을 때 실행될 함수
     private void OnVisualizationStartButtonClicked()
     {
-        // 날짜를 아직 한 번도 선택 안 했다면 서버 요청 블로킹
+        // 날짜를 아직 한 번도 선택 안 했다면 서버 요청 블로킹 + 경고메세지
         if (!isDateSelected)
         {
             UIManager.Instance.ShowWarningMessage("날짜를 선택해 주세요.");
@@ -236,7 +268,8 @@ public class ControlPanel : MonoBehaviour
         NetworkManager.Instance.ResetDecalData();
         visualizationResetButton.gameObject.SetActive(false);
         visualizationStartButton.interactable = true;
-        isVisualizing = false;
+        InitDateDropdown();
+        //isVisualizing = false;
     }
 
     // 옥상 녹화 구역 선택 버튼을 눌렀을 때 실행될 함수
@@ -248,34 +281,54 @@ public class ControlPanel : MonoBehaviour
     // 옥상 녹화 시뮬레이션 시작 버튼을 눌렀을 때 실행될 함수
     private void OnStartGreeneryButtonClicked()
     {
-        // 1. 구역이 아직 선택되지 않았다면 진행 불가
-        if (selectedZoneData == null)
+        // 구역이 선택되지 않았다면 진행 불가 + 경고메세지
+        if (!isZoneSelected)
         {
-            // ========== [TODO]: WarningMsgPanel에 안내메세지 출력 ==========
-            Debug.LogWarning("[ControlPanel] 먼저 구역(그리드)을 선택해주세요.");
+            UIManager.Instance.ShowWarningMessage("구역을 선택해 주세요.");
             return;
         }
 
-        // 2. 슬라이더에서 목표 녹화율 값 읽기
-        float greeneryRate = selecGreeneryRatioSlider != null ? selecGreeneryRatioSlider.value : 0f;
+        // 목표 녹화율이 선택되지 않았다면 진행 불가 + 경고메세지
+        if (!isRatioSelected)
+        {
+            UIManager.Instance.ShowWarningMessage("목표 녹화율을 설정해 주세요.");
+            return;
+        }
 
-        // ========== [TODO]: WarningMsgPanel에 안내메세지 출력 ==========
+        if (isZoneSelected && isRatioSelected)
+        {
+            // 슬라이더에서 목표 녹화율 값 읽기
+            float greeneryRate = selecGreeneryRatioSlider != null ? selecGreeneryRatioSlider.value : 0f;
 
-        Debug.Log($"[ControlPanel] 옥상 녹화 시뮬레이션 시작 — Zone: {selectedZoneData.zoneId}, " +
-            $"온도: {selectedZoneData.temperature}, 목표 녹화율: {greeneryRate}%");
+            Debug.Log($"[ControlPanel] 옥상 녹화 시뮬레이션 시작 — Zone: {selectedZoneData.zoneId}, " +
+                $"온도: {selectedZoneData.temperature}, 목표 녹화율: {greeneryRate}%");
 
-        // 3. 캐싱해둔 두 정보(zone + 녹화율)를 한 번에 SimulationController로 전달
-        SimulationController.Instance.StartGreenerySimulationForZone(
-            selectedZoneData.zoneId,
-            selectedZoneData.temperature,
-            greeneryRate
-        );
+            // 캐싱해둔 두 정보(zone + 녹화율)를 한 번에 SimulationController로 전달
+            SimulationController.Instance.StartGreenerySimulationForZone(
+                selectedZoneData.zoneId,
+                selectedZoneData.temperature,
+                greeneryRate
+            );
+
+            isSimulating = true;
+            startGreeneryButton.gameObject.SetActive(false);
+            stopGreeneryButton.gameObject.SetActive(true);
+        }
+    }
+
+    // 옥상 녹화 시뮬레이션 종료 버튼을 눌렀을 때 실행될 함수
+    private void OnStopGreeneryButtonClicked()
+    {
+        BuildingManager.Instance.ResetAllBuildings();
+        UIManager.Instance.HideResultInfo();
+        isZoneSelected = false;
+        isRatioSelected = false;
+        selectedZoneData = null;
+        selectGreeneryZoneText.text = selectZoneTextDefault;
+        selecGreeneryRatioSlider.value = 0f;
+        startGreeneryButton.gameObject.SetActive(true);
+        stopGreeneryButton.gameObject.SetActive(false);
+        isSimulating = false;
     }
     #endregion
-
-
-
-
-    
-
 }

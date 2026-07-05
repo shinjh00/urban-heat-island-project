@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 // 그리드 클릭 입력을 받아서 어떤 zone이 선택됐는지에 대한 상태 관리
@@ -17,6 +18,9 @@ public class ZoneSelector : MonoBehaviour
         // 마우스 입력 확인
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+
             Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
 
             // 레이캐스트

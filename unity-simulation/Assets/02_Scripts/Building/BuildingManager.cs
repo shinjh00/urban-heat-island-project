@@ -32,10 +32,10 @@ public class BuildingManager : MonoBehaviour
 
     public BuildingInfo selectedBuilding { get; private set; }  // 현재 선택된 건물
 
-    // 건물 스폰 완료 시 발생 이벤트
+    // 구역 선택 - 건물 스폰 완료 시 발생 이벤트
     public static event Action<BuildingData, GameObject> OnBuildingSpawned;
 
-    // zone 분류(zoneId, temperature 할당)까지 끝난 뒤 발행되는 이벤트
+    // 구역 선택 - zone 분류(zoneId, temperature 할당)까지 끝난 뒤 발행되는 이벤트
     public static event Action<BuildingData, GameObject> OnBuildingZoneAssigned;
 
     // 건물 제거 시 발생 이벤트
@@ -56,6 +56,9 @@ public class BuildingManager : MonoBehaviour
     // DataParser 가 반환한 전체 건물 데이터 리스트
     private List<BuildingData> buildingDataList = new List<BuildingData>();
 
+    // 생성된 그리드들을 담을 부모 빈 오브젝트 (한데 묶기 위함)
+    [SerializeField]
+    private Transform buildings;
 
     // 카메라 현재 위경도
     private double camLon, camLat;
@@ -71,10 +74,8 @@ public class BuildingManager : MonoBehaviour
     private double zoneCenterLon, zoneCenterLat;
     public float gridLoadRadius = 500f;
 
-
     // 시뮬레이션 시작 전엔 어떤 스폰도 하지 않도록 막는 마스터 스위치
     private bool spawnEnabled = false;
-
 
 
     void Awake()
@@ -249,7 +250,8 @@ public class BuildingManager : MonoBehaviour
         // 2) GameObject 생성 및
         // MeshFilter, MeshRenderer, MeshCollider, BuildingInfo 컴포넌트 부착
         GameObject obj = new GameObject("Building_" + key);
-        obj.transform.SetParent(georeference.transform);
+        //obj.transform.SetParent(georeference.transform);
+        if (buildings != null) obj.transform.SetParent(buildings);
         activeBuildings[key] = obj;
         statSpawned++;
 
@@ -298,6 +300,50 @@ public class BuildingManager : MonoBehaviour
 
         if (obj != null)
             obj.GetComponent<MeshRenderer>().enabled = true;
+    }
+
+    // 건물 오브젝트를 모두 제거하는 함수
+    public void ResetAllBuildings()
+    {
+        // 1. 진행 중인 모든 배치 코루틴 중단 (리셋 중에 늦게 켜지는 건물 방지)
+        StopAllCoroutines();
+
+        // 2. 씬에 생성되어 활성화된 모든 건물 GameObject 파괴
+        foreach (KeyValuePair<string, GameObject> kvp in activeBuildings)
+        {
+            if (kvp.Value != null)
+            {
+                // 이 건물이 제거되었음을 알리는 이벤트가 필요하다면 트리거
+                //OnBuildingRemoved?.Invoke(kvp.Key);
+
+                // 실제 게임 오브젝트 파괴
+                Destroy(kvp.Value);
+            }
+        }
+
+        // 딕셔너리 완전 초기화 (안의 껍데기들을 깔끔하게 비웁니다)
+        activeBuildings.Clear();
+
+        // 통계 및 상태 플래그 초기화
+        statSpawned = 0;
+        statFailed = 0;
+        selectedBuilding = null;
+        gridMode = false;
+        spawnEnabled = false;
+
+        // 혹시 부모 오브젝트(buildings) 밑에 찌꺼기가 남아있을 경우를 대비한 2중 안전장치
+        if (buildings != null)
+        {
+            foreach (Transform child in buildings)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        // 건물 선택 해제 이벤트 발행 (UI 패널 등이 열려있다면 닫히도록)
+        OnBuildingDeselected?.Invoke();
+
+        Debug.Log("[BuildingManager] 생성된 모든 건물 오브젝트를 제거하고 데이터를 리셋합니다.");
     }
 
 
@@ -363,8 +409,6 @@ public class BuildingManager : MonoBehaviour
             }
         }
         Debug.Log($"[BuildingManager] OnBuildingZoneAssigned 이벤트 발행 완료 — {assignedEventCount}개");
-
-
     }
     #endregion
 
