@@ -7,6 +7,10 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
+    [Header("Camera Toggle Panel")]
+    public GameObject cameraTogglePanel;        // 카메라 이동 안내 패널
+    public TMP_Text cameraToggleText;           // 카메라 이동 ON/OFF 메세지
+
     [Header("Warning Message Panel")]
     public GameObject warningMessagePanel;      // 경고 메세지 출력 패널
     public TMP_Text warningMessageText;         // 경고 메세지
@@ -18,7 +22,7 @@ public class UIManager : MonoBehaviour
     public ResultPanel simulationResultPanel;   // 결과 보고서 출력 패널
 
     [Header("Screen Blocking Panel")]
-    public GameObject screenBlockingPanel;     // 로딩 중 상호작용 안 되게 화면 전체를 덮는 패널
+    public GameObject screenBlockingPanel;      // 로딩 중 상호작용 안 되게 화면 전체를 덮는 패널
 
     // 시각화 드롭다운에서 선택된 날짜를 전역적으로 기억할 변수
     public string CurrentSelectedDate { get; private set; }
@@ -51,87 +55,17 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         warningMessagePanel.gameObject.SetActive(false);
-        screenBlockingPanel.SetActive(false);
         buildingInfoPanel.gameObject.SetActive(false);
         simulationResultPanel.gameObject.SetActive(false);
+        screenBlockingPanel.SetActive(false);
     }
 
-    // 시각화 드롭다운에서 날짜 선택 시 호출
-    public void SetSelectedDate(string dateText)
+
+    // 카메라 움직임 ON/OFF 여부 메세지 출력
+    public void CameraToggleText(string status)
     {
-        CurrentSelectedDate = dateText;
-        Debug.Log($"[UIManager] 시각화 - 선택된 날짜 {CurrentSelectedDate}");
+        cameraToggleText.text = status;
     }
-
-
-    #region ``Building Info Panel 제어``
-    // BuildingSelector에서 HandleBuildingSelected() 실행 시 호출
-    public void ShowBuildingInfo(BuildingInfo info)
-    {
-        currentBuildingInfo = info;
-
-        // 분리된 패널 스크립트에게 UI 갱신 및 오픈 처리를 위임합니다.
-        if (buildingInfoPanel != null)
-        {
-            buildingInfoPanel.Show(info);
-        }
-        else
-        {
-            Debug.LogWarning("[UIManager] buildingInfoPanel이 할당되지 않았습니다.");
-        }
-    }
-
-    // BuildingSelector에서 HandleBuildingDeselected() 실행 시 호출
-    public void HideBuildingInfo()
-    {
-        currentBuildingInfo = null;
-
-        // 패널 닫기 및 초기화 위임
-        if (buildingInfoPanel != null)
-        {
-            buildingInfoPanel.Hide();
-        }
-    }
-    #endregion
-
-
-    #region ``Result Panel 제어``
-    // SimulationController에서 HandleBuildingSelected() 실행 시 호출
-    public void ShowResultInfo()
-    {
-        if (simulationResultPanel != null)
-        {
-            ShowPanel(simulationResultPanel.gameObject);
-        }
-        else
-        {
-            Debug.LogWarning("[UIManager] simulationResultPanel이 할당되지 않았습니다.");
-        }
-    }
-
-    // BuildingSelector에서 HandleBuildingDeselected() 실행 시 호출
-    public void HideResultInfo()
-    {
-        if (simulationResultPanel != null)
-        {
-            HidePanel(simulationResultPanel.gameObject);
-        }
-    }
-    #endregion
-
-
-    public void ShowPanel(GameObject panel)
-    {
-        if (panel != null)
-            panel.SetActive(true);
-    }
-
-    public void HidePanel(GameObject panel)
-    {
-        if (panel != null)
-            panel.SetActive(false);
-    }
-
 
     // 화면 왼쪽 상단에 경고 메세지 출력
     public void ShowWarningMessage(string msg)
@@ -158,5 +92,61 @@ public class UIManager : MonoBehaviour
         warningMessageText.text = string.Empty;
         warningHideCoroutine = null;
     }
+
+
+    // 시각화 드롭다운에서 날짜 선택 시 호출
+    public void SetSelectedDate(string dateText)
+    {
+        CurrentSelectedDate = dateText;
+        Debug.Log($"[UIManager] 시각화 - 선택된 날짜 {CurrentSelectedDate}");
+    }
+
+
+    #region `` Show/Hide Panel ``
+
+    // BuildingSelector에서 HandleBuildingSelected() 실행 시 호출
+    public void ShowBuildingInfoPanel(BuildingInfo info)
+    {
+        currentBuildingInfo = info;
+
+        if (buildingInfoPanel != null)
+            buildingInfoPanel.gameObject.SetActive(true);
+        else
+            Debug.LogWarning("[UIManager] buildingInfoPanel이 할당되지 않았습니다.");
+    }
+
+    // BuildingSelector에서 HandleBuildingDeselected() 실행 시 호출
+    public void HideBuildingInfoPanel()
+    {
+        currentBuildingInfo = null;
+
+        if (buildingInfoPanel != null)
+            buildingInfoPanel.gameObject.SetActive(false);
+        else
+            Debug.LogWarning("[UIManager] buildingInfoPanel이 할당되지 않았습니다.");
+    }
+
+    // SimulationController에서 HandleBuildingSelected() 실행 시 호출
+    public void ShowResultPanel()
+    {
+        if (simulationResultPanel != null)
+            simulationResultPanel.gameObject.SetActive(true);
+        else
+            Debug.LogWarning("[UIManager] simulationResultPanel이 할당되지 않았습니다.");
+    }
+
+    // BuildingSelector에서 HandleBuildingDeselected() 실행 시 호출
+    public void HideResultPanel()
+    {
+        if (simulationResultPanel != null)
+            simulationResultPanel.gameObject.SetActive(false);
+        else
+            Debug.LogWarning("[UIManager] simulationResultPanel이 할당되지 않았습니다.");
+    }
+    #endregion
+
+
+    
+
 
 }

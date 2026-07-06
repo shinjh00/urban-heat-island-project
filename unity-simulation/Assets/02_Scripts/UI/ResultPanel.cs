@@ -51,7 +51,7 @@ public class ResultPanel : MonoBehaviour
         if (ExpectedEffect != null)
             ExpectedEffect.text = $"{controller.gridOriginalTemp:F2}°C -> {controller.greeneryAfterTemp:F2}°C\n({controller.expectedTempEffect:F2}°C 감소)";
 
-        UIManager.Instance.ShowResultInfo();
+        UIManager.Instance.ShowResultPanel();
 
         Debug.Log("[ResultPanel] 시뮬레이션 결과 UI 갱신이 완료되었습니다.");
     }

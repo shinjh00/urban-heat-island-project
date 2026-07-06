@@ -36,7 +36,6 @@ public class ControlPanel : MonoBehaviour
     [SerializeField]
     private Button stopGreeneryButton;         // 시뮬레이션 시작 버튼
 
-
     // ZoneSelector로부터 전달받아 캐싱해두는 현재 선택된 zone 정보
     private ZoneData selectedZoneData;
 
@@ -326,7 +325,7 @@ public class ControlPanel : MonoBehaviour
     private void OnStopGreeneryButtonClicked()
     {
         BuildingManager.Instance.ResetAllBuildings();
-        UIManager.Instance.HideResultInfo();
+        UIManager.Instance.HideResultPanel();
         isZoneSelected = false;
         isRatioSelected = false;
         selectedZoneData = null;

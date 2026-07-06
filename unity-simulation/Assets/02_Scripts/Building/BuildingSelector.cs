@@ -95,13 +95,13 @@ public class BuildingSelector : MonoBehaviour
         propBlock.SetColor(colorId, highlightColor);
         mr.SetPropertyBlock(propBlock);
         
-        UIManager.Instance.ShowBuildingInfo(info);
+        UIManager.Instance.ShowBuildingInfoPanel(info);
     }
 
     private void HandleBuildingDeselected()
     {
         RemoveHighlight();
-        UIManager.Instance.HideBuildingInfo();
+        UIManager.Instance.HideBuildingInfoPanel();
     }
 
     private void RemoveHighlight()

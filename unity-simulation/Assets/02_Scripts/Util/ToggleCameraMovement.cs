@@ -4,7 +4,7 @@ using UnityEngine;
 public class ToggleCameraMovement : MonoBehaviour
 {
     private CesiumCameraController cameraController;
-    private bool isEnabled = true;
+    private bool isEnabled;
 
     void Awake()
     {
@@ -15,6 +15,13 @@ public class ToggleCameraMovement : MonoBehaviour
         {
             Debug.LogError("[ToggleCameraMovement] CesiumCameraController를 찾을 수 없습니다.");
         }
+    }
+
+    private void Start()
+    {
+        isEnabled = true;
+        string status = isEnabled ? "ON" : "OFF";
+        UIManager.Instance.CameraToggleText("ON");
     }
 
     void Update()
@@ -35,8 +42,7 @@ public class ToggleCameraMovement : MonoBehaviour
         cameraController.enableMovement = isEnabled;
         cameraController.enableRotation = isEnabled;
 
-        string cameraStatus = isEnabled ? "카메라 이동 ON" : "카메라 이동 OFF";
-        UIManager.Instance.ShowWarningMessage(cameraStatus);
-        Debug.Log($"[ToggleCameraMovement] 카메라 움직임 {cameraStatus}");
+        string status = isEnabled ? "ON" : "OFF";
+        UIManager.Instance.CameraToggleText(status);
     }
 }
