@@ -1,10 +1,7 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 using static SimulationController;
 
 public class GreeneryCalculator : MonoBehaviour
@@ -253,7 +250,8 @@ public class GreeneryCalculator : MonoBehaviour
         {
             SimulationController.GreeneryRankingBuildings updatedData = rankedZoneBuildings[i];
 
-            if (updatedData.greeneryRank >= 1 && updatedData.greeneryRank <= 10)
+            if (updatedData.greeneryRank >= 1 && updatedData.greeneryRank <= 10 
+                && updatedData.greeneryStatus == GreeneryState.GreeneryPriority)
             {
                 updatedData.greeneryStatus = GreeneryState.GreeneryTop10; // Enum 대입
                 rankedZoneBuildings[i] = updatedData;

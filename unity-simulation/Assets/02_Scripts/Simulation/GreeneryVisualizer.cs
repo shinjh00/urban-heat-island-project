@@ -21,6 +21,9 @@ public class GreeneryVisualizer : MonoBehaviour
     // 생성된 라벨 추적용 (재시뮬레이션 시 정리)
     private readonly List<GameObject> spawnedLabels = new List<GameObject>();
 
+    //// [추가된 코드] 이전에 색칠했던 건물을 추적해서 다음 시뮬레이션 때 리셋하기 위한 리스트 (spawnedLabels와 같은 패턴)
+    //private readonly List<GameObject> coloredBuildings = new List<GameObject>();
+
     private void OnEnable()
     {
         // Controller가 결과 데이터 세팅을 끝냈을 때 발행하는 이벤트 구독
@@ -37,6 +40,17 @@ public class GreeneryVisualizer : MonoBehaviour
     private void ApplyGreeneryColors()
     {
         ClearLabels();  // 이전 시뮬 라벨부터 정리
+
+
+        //// [추가된 코드] 이전에 칠했던 건물들을 기본 머티리얼로 되돌린 뒤 리스트 비우기
+        //foreach (var obj in coloredBuildings)
+        //{
+        //    if (obj == null) continue;
+        //    MeshRenderer prevMr = obj.GetComponent<MeshRenderer>();
+        //    if (prevMr != null) prevMr.material = BuildingManager.Instance.defaultMaterial;
+        //}
+        //coloredBuildings.Clear();
+
         var ranked = SimulationController.Instance.greeneryRankingBuildings;
         if (ranked == null || ranked.Count == 0)
         {
@@ -63,12 +77,14 @@ public class GreeneryVisualizer : MonoBehaviour
             {
                 case GreeneryState.GreeneryTop10:
                     mr.material.color = top10Color;
+                    //coloredBuildings.Add(obj); //  다음 리셋 때 쓸 수 있도록 칠한 건물 기록
                     SpawnLabel(obj, info, b);   // Top10 전용 지붕 위 플로팅 라벨 생성
                     coloredCount++;
                     break;
 
                 case GreeneryState.GreeneryPriority:
                     mr.material.color = priorityColor;
+                    //coloredBuildings.Add(obj); // 다음 리셋 때 쓸 수 있도록 칠한 건물 기록
                     coloredCount++;
                     break;
 
@@ -111,7 +127,7 @@ public class GreeneryVisualizer : MonoBehaviour
             GameObject bubble = new GameObject("Bubble");
             SpriteRenderer sr = bubble.AddComponent<SpriteRenderer>();
             sr.sprite = tooltipSprite;
-            sr.flipY = true;  // ★ 꼬리 위 → 아래 (회전 대신 이 한 줄)
+            sr.flipY = true;  // 꼬리 위 → 아래 (회전 대신 이 한 줄)
             sr.sortingOrder = 9;   // [추가] 항상 텍스트 아래에
 
             bubble.transform.SetParent(labelObj.transform, false);

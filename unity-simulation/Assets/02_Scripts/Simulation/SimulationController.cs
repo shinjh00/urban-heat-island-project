@@ -1,12 +1,8 @@
-using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 
 
@@ -115,7 +111,7 @@ public class SimulationController : MonoBehaviour
     private void OnDestroy()
     {
         // 메모리 누수 방지를 위해 오브젝트 파괴 시 이벤트 구독을 해제합니다.
-        BuildingManager.OnBuildingSpawned -= AddSpawnedBuilding;
+        BuildingManager.OnBuildingZoneAssigned -= AddSpawnedBuilding;
         // [구독해지]
         GreeneryCalculator.OnCalculationCompleted -= OnReceiveCalculationResult;
     }
