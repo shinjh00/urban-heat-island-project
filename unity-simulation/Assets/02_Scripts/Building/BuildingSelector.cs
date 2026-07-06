@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -76,8 +75,6 @@ public class BuildingSelector : MonoBehaviour
             BuildingManager.Instance.DeselectBuilding();
     }
 
-
-
     private void HandleBuildingSelected(BuildingInfo info)
     {
         // 기존 선택 건물이 있다면 색상 복구
@@ -116,34 +113,6 @@ public class BuildingSelector : MonoBehaviour
             selectedRenderer.SetPropertyBlock(propBlock);
             selectedRenderer = null;
         }
-    }
-
-
-    private List<BuildingInfo> GetSameZoneBuildings(BuildingInfo clicked)
-    {
-        var result = new List<BuildingInfo>();
-        if (BuildingManager.Instance == null) return result;
-
-        double cosLat = Math.Cos(clicked.data.lat * Math.PI / 180.0);
-        (long, long) targetCell = GetGridCell(clicked.data.lon, clicked.data.lat, cosLat);
-
-        foreach (var kv in BuildingManager.Instance.GetActiveBuildings())
-        {
-            BuildingInfo info = kv.Value != null ? kv.Value.GetComponent<BuildingInfo>() : null;
-            if (info == null || info.data == null) continue;
-
-            if (GetGridCell(info.data.lon, info.data.lat, cosLat) == targetCell)
-                result.Add(info);
-        }
-        return result;
-    }
-
-    // 위경도 → 500m 그리드 셀 인덱스 (같은 cosLat 기준으로 경계 일관성 유지)
-    private (long, long) GetGridCell(double lon, double lat, double cosLat)
-    {
-        double xMeter = lon * LAT_SCALE * cosLat;
-        double zMeter = lat * LAT_SCALE;
-        return ((long)Math.Floor(xMeter / CELL_SIZE), (long)Math.Floor(zMeter / CELL_SIZE));
     }
 
 }

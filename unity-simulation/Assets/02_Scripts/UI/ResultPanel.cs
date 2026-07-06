@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 
@@ -35,8 +34,10 @@ public class ResultPanel : MonoBehaviour
         if (controller == null) return;
 
         // 1. 녹화율
+        int greeneryRate = (int)(controller.greeneryRate * 100);
         if (GreeningRatio_txt != null)
-            GreeningRatio_txt.text = $"{controller.greeneryRate} %";
+
+            GreeningRatio_txt.text = $"{greeneryRate} %";
 
         // 2. 녹화 건물 개수
         if (GreeningCount_txt != null)
@@ -44,11 +45,11 @@ public class ResultPanel : MonoBehaviour
 
         // 3. 녹화 적용 면적 (㎡)
         if (TotalGreeningArea_txt != null)
-            TotalGreeningArea_txt.text = $"총 {controller.expectedGreeneryArea:#,##0.0} m²";
+            TotalGreeningArea_txt.text = $"총 {controller.expectedGreeneryArea:#,##0.00} m²";
 
         // 4. 예상 효과
         if (ExpectedEffect != null)
-            ExpectedEffect.text = $"{controller.gridOriginalTemp:F2}°C -> {controller.greeneryAfterTemp:F2}°C ({controller.expectedTempEffect:F2}°C 감소)";
+            ExpectedEffect.text = $"{controller.gridOriginalTemp:F2}°C -> {controller.greeneryAfterTemp:F2}°C\n({controller.expectedTempEffect:F2}°C 감소)";
 
         UIManager.Instance.ShowResultInfo();
 

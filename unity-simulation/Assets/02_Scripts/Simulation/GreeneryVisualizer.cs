@@ -17,6 +17,7 @@ public class GreeneryVisualizer : MonoBehaviour
     [SerializeField] private Sprite tooltipSprite;             // 말풍선 스프라이트 드래그
     [SerializeField] private Vector2 bubbleScale = new Vector2(10f, 10f);
     [SerializeField] private float bubbleYOffset = 0f;         // 텍스트-말풍선 미세조정
+    [SerializeField] private TMP_FontAsset textFontAsset;
 
     // 생성된 라벨 추적용 (재시뮬레이션 시 정리)
     private readonly List<GameObject> spawnedLabels = new List<GameObject>();
@@ -106,8 +107,10 @@ public class GreeneryVisualizer : MonoBehaviour
         // 1) 순위/점수 텍스트 (3D TMP — Canvas 불필요)
         GameObject labelObj = new GameObject($"Top10Label_{b.greeneryRank}");
         TextMeshPro tmp = labelObj.AddComponent<TextMeshPro>();
-        tmp.text = $"<size=60%>Rank</size> <color=#1E8449><b>{b.greeneryRank}</b></color>\n" +
-            $"<size=60%>Score</size> <b>{b.greeneryScore:F1}</b>";
+        //tmp.text = $"<size=60%>Rank</size> <color=#1E8449><b>{b.greeneryRank}</b></color>\n" +
+        //    $"<size=60%>Score</size> <b>{b.greeneryScore:F1}</b>";
+        tmp.text = $"<size=60%>점수 (순위) :</size>\n<b>{(int)b.greeneryScore} ({b.greeneryRank}위)</b>";
+        tmp.font = textFontAsset;
         tmp.fontSize = labelFontSize;
         tmp.color = labelColor;
         tmp.fontStyle = FontStyles.Bold;
@@ -129,6 +132,9 @@ public class GreeneryVisualizer : MonoBehaviour
             sr.sprite = tooltipSprite;
             sr.flipY = true;  // 꼬리 위 → 아래 (회전 대신 이 한 줄)
             sr.sortingOrder = 9;   // [추가] 항상 텍스트 아래에
+            Color bubbleColor = sr.color;
+            bubbleColor.a = 0.8f;
+            sr.color = bubbleColor;
 
             bubble.transform.SetParent(labelObj.transform, false);
             bubble.transform.localPosition = new Vector3(0f, bubbleYOffset, 0.5f);  // +Z = 텍스트보다 뒤

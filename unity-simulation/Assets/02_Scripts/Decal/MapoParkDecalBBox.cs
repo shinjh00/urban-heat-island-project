@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using System.Reflection;
 
 
-// TODO: [피드백] 
+// TODO:
 // 현재 두개의 데칼 스크립트 MapoPark와 Mapo는 데이터만 다를 뿐 수행하는 기능이 같음
 // 하나의 스크립트 예를 들어CesiumDecalBBoxFitter같은 것을 만들고 값 만 다르게 사용하는 것이 좋겠음.
 
@@ -63,7 +63,7 @@ public class MapoParkDecalBBox : MonoBehaviour
 
     void SetDecalSize(float width, float height, float depth)
     {
-        // TODO: [피드백] 
+        // TODO:
         //현재 작성된 SetDecalSize는 URP 버전에 대응하려는 의도는 좋았으나, 
         //유니티 공식 프로퍼티인 decalProjector.size를 직접 수정하는 것이 성능과 안정성 면에서 훨씬 우수하니 수정해보기
         // 아래 예시 참조

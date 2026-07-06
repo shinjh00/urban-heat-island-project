@@ -46,7 +46,6 @@ public class NetworkManager : MonoBehaviour
     // 현재 진행되고 있는 데칼 요청 코루틴
     private Coroutine currentDecalCoroutine;
 
-
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -74,16 +73,6 @@ public class NetworkManager : MonoBehaviour
 
 
     #region ``시각화 기능``
-
-    // TODO: [피드백/크리티컬]
-    // 이 함수를 사용자가 날짜를 빠르게 두 번 이상 바꿔서 연달아 호출하면 코루틴이 여러개 동시에 돌게될듯
-    // 재시도 로직(최대 3회 + 실패 시 2초 대기) 때문에 요청마다 응답 시간이 달라서
-    // 먼저보낸 요청이 나중에 도착해 ApplyTextureToSceneDecal()을
-    // 더 늦게 호출하면 최신 날짜 대신 이전 날짜의 히트맵이 남을 수 도있음  
-    // 고치는 법 예시: 요청 시작 시 자기만의 요청 ID(또는 요청한 apiTargetTime)를 기억해두고,
-
-    // 응답이 왔을 때 "지금 UI가 가리키는 날짜와 이 응답의 날짜가 같은 경우에만" 텍스처를 적용하면 어떨지? 
-    // 아니면 새 요청 시작 전에 이전 코루틴을 StopCoroutine으로 취소하기
 
     // ControlPanel.cs에서 시각화 시작 버튼 클릭 시 호출됨
     public void RefreshDecalData()

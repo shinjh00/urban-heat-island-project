@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-
-
 public class SimulationController : MonoBehaviour
 {
     public static SimulationController Instance { get; private set; }

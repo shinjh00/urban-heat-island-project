@@ -25,7 +25,12 @@ public class BuildingInfoPanel : MonoBehaviour
 
         // 2. BuildingData 원본 데이터 매핑
         if (txtType != null) txtType.text = $"{info.data.type}";
-        if (txtMaterial != null) txtMaterial.text = $"{info.data.material}";
+        string materialText = info.data.material;
+        if (materialText.Contains("구조"))
+        {
+            materialText = materialText.Replace("구조", "");
+        }
+        if (txtMaterial != null) txtMaterial.text = $"{materialText}";
         if (txtAreaSize != null) txtAreaSize.text = $"{info.data.areaSize:N1} m²"; // 천단위 쉼표 + 소수점 1자리
         if (txtFloors != null) txtFloors.text = $"{info.data.floors} 층";
 
@@ -51,19 +56,19 @@ public class BuildingInfoPanel : MonoBehaviour
         if (info.greeneryRank > 0)
         {
             if (txtGreenerStatus != null)
-                txtGreenerStatus.text = $"녹화 등급 : {greeneryGrade}";
+                txtGreenerStatus.text = $"{greeneryGrade}";
 
             if (txtGreeneryScoreRank != null)
-                txtGreeneryScoreRank.text = $"녹화 점수 : {info.greeneryScore:F2} 점 ({info.greeneryRank}위)"; // 소수점 2자리 표기
+                txtGreeneryScoreRank.text = $"{(int)info.greeneryScore} 점 ({info.greeneryRank}위)"; // 소수점 2자리 표기
         }
         else
         {
             // 시뮬레이션 결과가 없는 상태 (기본값)
             if (txtGreenerStatus != null)
-                txtGreenerStatus.text = "녹화 등급 : 일반 건물";
+                txtGreenerStatus.text = "대상 아님";
 
             if (txtGreeneryScoreRank != null)
-                txtGreeneryScoreRank.text = "녹화 점수 : 계산 전";
+                txtGreeneryScoreRank.text = "-";
         }
 
         Debug.Log($"[BuildingInfoPanel] {info.data.id} 건물 정보 출력 완료. (Status: {info.greeneryStatus}, Score: {info.greeneryScore}, Rank: {info.greeneryRank})");

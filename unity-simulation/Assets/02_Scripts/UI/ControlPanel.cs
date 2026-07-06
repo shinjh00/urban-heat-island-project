@@ -229,6 +229,8 @@ public class ControlPanel : MonoBehaviour
     {
         isRatioSelected = (value == 0) ? false : true;
         UpdatePercentValue(value);
+        startGreeneryButton.gameObject.SetActive(true);
+        stopGreeneryButton.gameObject.SetActive(false);
     }
 
     // 목표 녹화율 슬라이더 움직일 시 숫자 텍스트 출력
@@ -276,6 +278,8 @@ public class ControlPanel : MonoBehaviour
     private void OnSelectGreeneryZoneButtonClicked()
     {
         ZoneManager.Instance.EnableZoneSelection();
+        startGreeneryButton.gameObject.SetActive(true);
+        stopGreeneryButton.gameObject.SetActive(false);
     }
 
     // 옥상 녹화 시뮬레이션 시작 버튼을 눌렀을 때 실행될 함수
