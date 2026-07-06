@@ -119,6 +119,7 @@ public class ControlPanel : MonoBehaviour
         }
     }
 
+ 
     private void OnDisable()
     {
         ZoneSelector.OnZoneSelected -= HandleZoneSelected;
@@ -174,7 +175,6 @@ public class ControlPanel : MonoBehaviour
 
         // 생성한 리스트를 드롭다운에 넣기
         dateDropdown.AddOptions(dateOptions);
-        //dateDropdown.captionText.text = "년/월 선택";
         dateDropdown.RefreshShownValue();  // 화면 갱신
         isDateSelected = false;
 
@@ -187,6 +187,7 @@ public class ControlPanel : MonoBehaviour
         dateDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
     }
 
+
     // 드롭다운 아이템을 선택했을 때 실행될 기능
     private void OnDropdownValueChanged(int index)  // isDateSelected
     {
@@ -195,6 +196,7 @@ public class ControlPanel : MonoBehaviour
 
         if (isVisualizing)
             visualizationStartButton.interactable = true;
+        Debug.Log($"================== {index} =================");
 
         // dateDropdown.options[index].text로 선택한 "2026년 06월" 글자를 가져옴
         string originalText = dateDropdown.options[index].text;
