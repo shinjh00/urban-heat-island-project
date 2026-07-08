@@ -11617,7 +11617,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45326fca2534a8745a6133835f991580, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingSelector
-  highlightColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  highlightColor: {r: 0.11764706, g: 0.5647059, b: 1, a: 1}
   greeneryVisualizer: {fileID: 0}
   zoneSelectionMode: 0
   selectedZoneBuildings: []
