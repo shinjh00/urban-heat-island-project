@@ -108,6 +108,7 @@ public class UIManager : MonoBehaviour
     public void ShowBuildingInfoPanel(BuildingInfo info)
     {
         currentBuildingInfo = info;
+        buildingInfoPanel.Show(info);
 
         if (buildingInfoPanel != null)
             buildingInfoPanel.gameObject.SetActive(true);
@@ -118,6 +119,7 @@ public class UIManager : MonoBehaviour
     // BuildingSelector에서 HandleBuildingDeselected() 실행 시 호출
     public void HideBuildingInfoPanel()
     {
+        buildingInfoPanel.Hide();
         currentBuildingInfo = null;
 
         if (buildingInfoPanel != null)

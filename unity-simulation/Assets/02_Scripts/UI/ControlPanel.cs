@@ -195,7 +195,6 @@ public class ControlPanel : MonoBehaviour
 
         if (isVisualizing)
             visualizationStartButton.interactable = true;
-        Debug.Log($"================== {index} =================");
 
         // dateDropdown.options[index].text로 선택한 "2026년 06월" 글자를 가져옴
         string originalText = dateDropdown.options[index].text;
@@ -219,6 +218,8 @@ public class ControlPanel : MonoBehaviour
             isZoneSelected = false;
             return;
         }
+
+        UIManager.Instance.screenBlockingPanel.SetActive(true);
 
         isZoneSelected = true;
         selectedZoneData = selectedItem.data;
@@ -272,7 +273,7 @@ public class ControlPanel : MonoBehaviour
         visualizationResetButton.gameObject.SetActive(false);
         visualizationStartButton.interactable = true;
         InitDateDropdown();
-        //isVisualizing = false;
+        isVisualizing = false;
     }
 
     // 옥상 녹화 구역 선택 버튼을 눌렀을 때 실행될 함수

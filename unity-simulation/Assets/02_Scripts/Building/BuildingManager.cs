@@ -408,6 +408,8 @@ public class BuildingManager : MonoBehaviour
             }
         }
         Debug.Log($"[BuildingManager] OnBuildingZoneAssigned 이벤트 발행 완료 — {assignedEventCount}개");
+
+        UIManager.Instance.screenBlockingPanel.SetActive(false);
     }
     #endregion
 
