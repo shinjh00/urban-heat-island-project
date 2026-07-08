@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 public class BuildingSelector : MonoBehaviour
 {
     // 선택 시 하이라이트 색상
-    public Color highlightColor = new Color(30 / 255f, 144 / 255f, 255f / 255f);
+    public Color highlightColor = new Color(30f / 255f, 144f / 255f, 255f / 255f);
 
     // 선택된 건물의 MeshRenderer와 Material
     private MeshRenderer selectedRenderer;

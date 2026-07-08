@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.Networking;
 using UnityEngine.Rendering.Universal;
 
@@ -211,12 +213,7 @@ public class NetworkManager : MonoBehaviour
     #region ``grid.geojson 받아와서 rawJsonText로 반환``
     public IEnumerator FetchGeoJsonData(Action<string> onResult)
     {
-        // 없으면 6월껄로 , 있으면 그걸로
-        if (apiTargetTime == null)
-        {
-            apiTargetTime = "202606151400";
-        }
-        apiTargetTime = UIManager.Instance.CurrentSelectedDate;
+        apiTargetTime = "202606151400";
 
         string requestUrl = $"http://{apiServerIP}:5000/api/weather/mapo-decal.geojson?tm={apiTargetTime}";
         UnityWebRequest request = UnityWebRequest.Get(requestUrl);
@@ -252,6 +249,7 @@ public class NetworkManager : MonoBehaviour
         currentDecalCoroutine = null;
         yield break;
     }
+
     #endregion
 
 }
