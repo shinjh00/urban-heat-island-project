@@ -105,3 +105,7 @@ desktop.ini
 /python-analysis/**/.ipynb_checkpoints/
 .poetry/
 .pdm/
+
+# [추가] 대용량 데이터 및 노트북 작업 폴더 제외
+/python-analysis/data/
+/python-analysis/notebooks/

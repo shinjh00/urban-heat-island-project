@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5753317967787933441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7849179270192441202}
+  - component: {fileID: 5920132679325684541}
+  - component: {fileID: 4402871504994079016}
+  - component: {fileID: 8694207070795237655}
+  m_Layer: 0
+  m_Name: Decal_Mapo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7849179270192441202
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5753317967787933441}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7070084, y: -0.00013407622, z: -0.00013407622, w: 0.7072051}
+  m_LocalPosition: {x: 2421.7747, y: -965.1899, z: -1767.1747}
+  m_LocalScale: {x: 1, y: 1.0000002, z: 1.0000002}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5920132679325684541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5753317967787933441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0777d029ed3dffa4692f417d4aba19ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.DecalProjector
+  m_Material: {fileID: 2100000, guid: c8d2f99c6fcc5ff46902ecc616aef596, type: 2}
+  m_DrawDistance: 1000
+  m_FadeScale: 0.000001
+  m_StartAngleFade: 180
+  m_EndAngleFade: 180
+  m_UVScale: {x: 1, y: 1}
+  m_UVBias: {x: 0, y: 0}
+  m_RenderingLayerMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ScaleMode: 0
+  m_Offset: {x: 0, y: 0, z: 0.5}
+  m_Size: {x: 1, y: 1, z: 1}
+  m_FadeFactor: 1
+  version: 1
+  m_DecalLayerMask: 1
+--- !u!114 &4402871504994079016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5753317967787933441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74f14e1eb550b9a4fb6c0a2f0456845b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CesiumForUnity::CesiumForUnity.CesiumGlobeAnchor
+  _adjustOrientationForGlobeWhenMoving: 1
+  _detectTransformChanges: 1
+  _localToGlobeFixedMatrix:
+    c0:
+      x: -0.799763152580046
+      y: -0.600315622253914
+      z: -0.00023119931834124214
+      w: 0
+    c1:
+      x: 0.36577750849865676
+      y: -0.48760792619151133
+      z: 0.7927457622434495
+      w: 0
+    c2:
+      x: 0.47601040016409274
+      y: -0.6339242825004576
+      z: -0.6095528048948012
+      w: 0
+    c3:
+      x: -3039859.1497555333
+      y: 4048316.025063191
+      z: 3866615.9101858963
+      w: 1
+  _localToGlobeFixedMatrixIsValid: 1
+--- !u!114 &8694207070795237655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5753317967787933441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16b5790ea5d84d047848774fd875878a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapoDecalBBox
+  decalProjector: {fileID: 5920132679325684541}
+  globeAnchor: {fileID: 4402871504994079016}
+  minLon: 126.85362854763055
+  minLat: 37.53378572594233
+  maxLon: 126.96396551660256
+  maxLat: 37.590792433269456
+  widthMeter: 10860.772
+  heightMeter: 8325.893
+  projectionDepth: 500
+  decalHeight: 151.0473
