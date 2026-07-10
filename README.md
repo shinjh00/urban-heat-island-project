@@ -61,8 +61,8 @@
 
 ### ✅ 개발 환경 (Development Environment)
 
-- **OS**: Windows 10 / 11
-- **Unity**: Unity 2022.3 LTS (또는 사용하신 버전 입력)
-- **Python**: Python 3.10+
-- **Libraries**: Pandas, NumPy, Matplotlib, Seaborn
-- **IDE**: Visual Studio Code / PyCharm
+- **Python** : Python 3.14
+- **Unity** : Unity 6.3 LTS
+- **Cesium** : Cesium ion v1.23.3
+- **Libraries** : NumPy, Matplotlib, GeoPandas
+- **Framework** : Flask
