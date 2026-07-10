@@ -51,11 +51,11 @@
 
 | Name | Role | 담당 업무 |
 | --- | --- | --- |
-| **손요엘** | Team Leader/Developer | 프로젝트 총괄, 유니티 시뮬레이션 핵심 로직 구현 |
-| **이서진** | Developer | 3D 지형 매핑, 구역 선택 핵심 로직 구현, 시뮬레이션 결과 시각화 |
-| **신지혜** | Developer | UI/UX 설계 및 구현, 코드 구조 설계 및 리팩토링, 깃 버전관리 |
-| **박수진** | Data Analyst | 기상청 및 건물 데이터 수집, 전처리 및 상관관계 빅데이터 분석 |
-| **황석호** | Developer | 기상청 API 데이터 수집 및 가공, Flask 서버 구축 |
+| **손요엘** | Team Leader / Unity Developer | 프로젝트 총괄, 유니티 시뮬레이션 핵심 로직 구현 |
+| **이서진** | Unity Developer | 3D 지형 매핑, 구역 선택 핵심 로직 구현, 시뮬레이션 결과 시각화 |
+| **신지혜** | Unity Developer | UI/UX 설계 및 구현, 코드 구조 설계 및 리팩토링, 깃 버전관리 |
+| **박수진** | Python Data Analyst | 기상청 및 건물 데이터 수집, 전처리 및 상관관계 빅데이터 분석 |
+| **황석호** | Backend Developer | 기상청 API 데이터 수집 및 가공, Flask 서버 구축 |
 
 ---
 
